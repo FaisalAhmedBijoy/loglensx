@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="loglens",
+    name="loglensx",
     version="1.0.0",
     packages=find_packages(),
     include_package_data=True,
@@ -24,19 +24,19 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "loglens-info=loglens.cli:main",
+            "loglens=loglens.cli:main",
         ],
     },
     author="LogLens Contributors",
-    author_email="support@loglens.dev",
+    author_email="faisal.cse16.kuet@gmail.com",
     description="Interactive log viewer with charts and visualizations for FastAPI and Flask",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/loglens",
+    url="https://github.com/faisalahmedbijoy/loglens",
     project_urls={
-        "Bug Tracker": "https://github.com/yourusername/loglens/issues",
+        "Bug Tracker": "https://github.com/faisalahmedbijoy/loglens/issues",
         "Documentation": "https://loglens.readthedocs.io",
-        "Source Code": "https://github.com/yourusername/loglens",
+        "Source Code": "https://github.com/faisalahmedbijoy/loglens",
     },
     classifiers=[
         "Development Status :: 4 - Beta",

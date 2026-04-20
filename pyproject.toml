@@ -3,13 +3,13 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "loglens"
+name = "loglensx"
 version = "1.0.0"
 description = "Interactive log viewer with charts and visualizations for FastAPI and Flask"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "LogLens Contributors", email = "support@loglens.dev"}
+    {name = "LogLens Contributors", email = "faisa.cse16.kuet@gmail.com"}
 ]
 keywords = [
     "logging",
@@ -61,10 +61,10 @@ dev = [
 loglens = "loglens.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/loglens"
+Homepage = "https://github.com/faisalahmedbijoy/loglens"
 Documentation = "https://loglens.readthedocs.io"
-Repository = "https://github.com/yourusername/loglens.git"
-"Bug Tracker" = "https://github.com/yourusername/loglens/issues"
+Repository = "https://github.com/faisalahmedbijoy/loglens.git"
+"Bug Tracker" = "https://github.com/faisalahmedbijoy/loglens/issues"
 
 [tool.setuptools]
 packages = ["loglens", "loglens.core", "loglens.integrations", "loglens.visualizers"]
