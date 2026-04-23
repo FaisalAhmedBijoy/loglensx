@@ -209,7 +209,7 @@ error_freq = analyzer.get_error_frequency(hours=24)
 ### Generate Visualizations
 
 ```python
-from loglens.visualizers import ChartGenerator, TableGenerator
+from loglensx.visualizers import ChartGenerator, TableGenerator
 
 # Generate charts (returns JSON for Plotly)
 level_chart = ChartGenerator.plotly_level_distribution(level_stats)
