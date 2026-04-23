@@ -4,8 +4,8 @@ Standalone example showing LogLens usage without web frameworks.
 
 import logging
 from datetime import datetime
-from loglens import LogParser, LogAnalyzer
-from loglens.visualizers import ChartGenerator, TableGenerator
+from loglensx import LogParser, LogAnalyzer
+from loglensx.visualizers import ChartGenerator, TableGenerator
 import os
 import json
 

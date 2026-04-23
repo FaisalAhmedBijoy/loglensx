@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import logging
 from datetime import datetime
-from loglens import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglens
 
 # Configure logging
 import os

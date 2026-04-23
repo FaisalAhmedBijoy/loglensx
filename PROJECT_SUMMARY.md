@@ -101,7 +101,7 @@ twine upload dist/*
 Enter your PyPI credentials when prompted.
 
 ### Step 4: Verify
-Visit: https://pypi.org/project/loglens/
+Visit: https://pypi.org/project/loglensx/
 
 ---
 
@@ -111,16 +111,16 @@ Users will be able to install with:
 
 ```bash
 # Basic installation
-pip install loglens
+pip install loglensx
 
 # With FastAPI support
-pip install loglens[fastapi]
+pip install loglensx[fastapi]
 
 # With Flask support
-pip install loglens[flask]
+pip install loglensx[flask]
 
 # Development version
-pip install loglens[dev]
+pip install loglensx[dev]
 ```
 
 ---
@@ -206,7 +206,7 @@ Tests cover:
 ### FastAPI
 ```python
 from fastapi import FastAPI
-from loglens import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglens
 
 app = FastAPI()
 setup_fastapi_loglens(app, log_dir="logs", prefix="/loglens")
@@ -217,7 +217,7 @@ setup_fastapi_loglens(app, log_dir="logs", prefix="/loglens")
 ### Flask
 ```python
 from flask import Flask
-from loglens import setup_flask_loglens
+from loglensx import setup_flask_loglens
 
 app = Flask(__name__)
 setup_flask_loglens(app, log_dir="logs", prefix="/loglens")
@@ -227,7 +227,7 @@ setup_flask_loglens(app, log_dir="logs", prefix="/loglens")
 
 ### Standalone
 ```python
-from loglens import LogParser, LogAnalyzer
+from loglensx import LogParser, LogAnalyzer
 
 parser = LogParser(log_dir="logs")
 analyzer = LogAnalyzer(parser)
@@ -372,7 +372,7 @@ setup_flask_loglens(app, log_dir, prefix)
 ## 🔄 Next Steps After Publishing
 
 1. **Monitor PyPI Page**
-   - Visit: https://pypi.org/project/loglens/
+   - Visit: https://pypi.org/project/loglensx/
    - Track download statistics
 
 2. **GitHub Release**

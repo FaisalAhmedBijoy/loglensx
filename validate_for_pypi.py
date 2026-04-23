@@ -72,15 +72,15 @@ def check_imports():
     print("\n✓ Checking imports...")
     try:
         sys.path.insert(0, str(Path.cwd()))
-        from loglens import LogParser, LogAnalyzer
+        from loglensx import LogParser, LogAnalyzer
         print("  ✓ LogParser imported successfully")
         print("  ✓ LogAnalyzer imported successfully")
 
-        from loglens.integrations import setup_fastapi_loglens, setup_flask_loglens
+        from loglensx.integrations import setup_fastapi_loglens, setup_flask_loglens
         print("  ✓ setup_fastapi_loglens imported successfully")
         print("  ✓ setup_flask_loglens imported successfully")
 
-        from loglens.visualizers import ChartGenerator, TableGenerator
+        from loglensx.visualizers import ChartGenerator, TableGenerator
         print("  ✓ ChartGenerator imported successfully")
         print("  ✓ TableGenerator imported successfully")
 

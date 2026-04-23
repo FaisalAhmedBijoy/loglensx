@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "loglens=loglens.cli:main",
+            "loglens=loglensx.cli:main",
         ],
     },
     author="LogLens Contributors",
@@ -32,11 +32,11 @@ setup(
     description="Interactive log viewer with charts and visualizations for FastAPI and Flask",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/faisalahmedbijoy/loglens",
+    url="https://github.com/faisalahmedbijoy/loglensx",
     project_urls={
-        "Bug Tracker": "https://github.com/faisalahmedbijoy/loglens/issues",
-        "Documentation": "https://loglens.readthedocs.io",
-        "Source Code": "https://github.com/faisalahmedbijoy/loglens",
+        "Bug Tracker": "https://github.com/faisalahmedbijoy/loglensx/issues",
+        "Documentation": "https://loglensx.readthedocs.io",
+        "Source Code": "https://github.com/faisalahmedbijoy/loglensx",
     },
     classifiers=[
         "Development Status :: 4 - Beta",

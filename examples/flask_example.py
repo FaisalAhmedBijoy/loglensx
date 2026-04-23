@@ -5,7 +5,7 @@ Flask example showing LogLens integration.
 from flask import Flask, jsonify
 import logging
 from datetime import datetime
-from loglens import setup_flask_loglens
+from loglensx import setup_flask_loglens
 import os
 
 # Create Flask app

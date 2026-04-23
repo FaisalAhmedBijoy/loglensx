@@ -247,22 +247,22 @@ tests/
 
 ### Basic
 ```bash
-pip install loglens
+pip install loglensx
 ```
 
 ### With FastAPI
 ```bash
-pip install loglens[fastapi]
+pip install loglensx[fastapi]
 ```
 
 ### With Flask
 ```bash
-pip install loglens[flask]
+pip install loglensx[flask]
 ```
 
 ### For Development
 ```bash
-pip install loglens[dev]
+pip install loglensx[dev]
 ```
 
 ---
@@ -272,20 +272,20 @@ pip install loglens[dev]
 ### FastAPI (3 lines)
 ```python
 from fastapi import FastAPI
-from loglens import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglens
 setup_fastapi_loglens(FastAPI())  # Visit /loglens/
 ```
 
 ### Flask (3 lines)
 ```python
 from flask import Flask
-from loglens import setup_flask_loglens
+from loglensx import setup_flask_loglens
 setup_flask_loglens(Flask(__name__))  # Visit /loglens/
 ```
 
 ### Standalone (3 lines)
 ```python
-from loglens import LogParser, LogAnalyzer
+from loglensx import LogParser, LogAnalyzer
 analyzer = LogAnalyzer(LogParser())
 print(analyzer.get_log_summary())
 ```
@@ -370,15 +370,15 @@ pytest tests/
    ```
 
 3. **Verify:**
-   - Visit https://pypi.org/project/loglens/
-   - Test: `pip install loglens`
+   - Visit https://pypi.org/project/loglensx/
+   - Test: `pip install loglensx`
 
 ### For Users After Publishing:
 ```bash
-pip install loglens
+pip install loglensx
 # or
-pip install loglens[fastapi]  # With FastAPI
-pip install loglens[flask]    # With Flask
+pip install loglensx[fastapi]  # With FastAPI
+pip install loglensx[flask]    # With Flask
 ```
 
 ---

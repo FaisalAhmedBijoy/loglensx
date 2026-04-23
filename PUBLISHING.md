@@ -60,7 +60,7 @@ twine upload --repository testpypi dist/*
 Test installation:
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ loglens
+pip install --index-url https://test.pypi.org/simple/ loglensx
 ```
 
 ## Step 5: Update Version
@@ -89,7 +89,7 @@ Enter your PyPI credentials when prompted.
 
 ## Step 7: Verify Publication
 
-Visit: https://pypi.org/project/loglens/
+Visit: https://pypi.org/project/loglensx/
 
 ## Step 8: Tag Release (Git)
 
@@ -103,10 +103,10 @@ git push origin v1.0.0
 Users can now install with:
 
 ```bash
-pip install loglens
-pip install loglens[fastapi]
-pip install loglens[flask]
-pip install loglens[dev]
+pip install loglensx
+pip install loglensx[fastapi]
+pip install loglensx[flask]
+pip install loglensx[dev]
 ```
 
 ## Troubleshooting
@@ -117,7 +117,7 @@ Verify `setup.py`, `pyproject.toml` syntax and all required fields.
 
 ### "File already exists" error
 
-Delete the file from PyPI at https://pypi.org/project/loglens/
+Delete the file from PyPI at https://pypi.org/project/loglensx/
 
 or use a new version number.
 

@@ -4,22 +4,22 @@
 
 ### Basic Installation
 ```bash
-pip install loglens
+pip install loglensx
 ```
 
 ### With FastAPI
 ```bash
-pip install loglens[fastapi]
+pip install loglensx[fastapi]
 ```
 
 ### With Flask
 ```bash
-pip install loglens[flask]
+pip install loglensx[flask]
 ```
 
 ### For Development
 ```bash
-pip install loglens[dev]
+pip install loglensx[dev]
 ```
 
 ## 5-Minute Tutorial
@@ -29,7 +29,7 @@ pip install loglens[dev]
 ```python
 # main.py
 from fastapi import FastAPI
-from loglens import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglens
 import logging
 from datetime import datetime
 import os
@@ -81,7 +81,7 @@ Visit:
 ```python
 # app.py
 from flask import Flask, jsonify
-from loglens import setup_flask_loglens
+from loglensx import setup_flask_loglens
 import logging
 from datetime import datetime
 import os
@@ -130,7 +130,7 @@ Visit:
 ### 3. Standalone Usage (2 minutes)
 
 ```python
-from loglens import LogParser, LogAnalyzer
+from loglensx import LogParser, LogAnalyzer
 
 # Parse logs
 parser = LogParser(log_dir="logs")

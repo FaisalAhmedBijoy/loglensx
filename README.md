@@ -1,6 +1,6 @@
 # LogLens - Interactive Log Viewer
 
-[![PyPI version](https://badge.fury.io/py/loglens.svg)](https://badge.fury.io/py/loglens)
+[![PyPI version](https://badge.fury.io/py/loglensx.svg)](https://badge.fury.io/py/loglensx)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -36,24 +36,24 @@ A powerful, interactive log viewer and analyzer for Python web applications. Log
 Install LogLens from PyPI:
 
 ```bash
-pip install loglens
+pip install loglensx
 ```
 
 ### With Framework Support
 
 **FastAPI:**
 ```bash
-pip install loglens[fastapi]
+pip install loglensx[fastapi]
 ```
 
 **Flask:**
 ```bash
-pip install loglens[flask]
+pip install loglensx[flask]
 ```
 
 **Development:**
 ```bash
-pip install loglens[dev]
+pip install loglensx[dev]
 ```
 
 ## Quick Start
@@ -62,7 +62,7 @@ pip install loglens[dev]
 
 ```python
 from fastapi import FastAPI
-from loglens import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglens
 
 app = FastAPI()
 
@@ -76,7 +76,7 @@ setup_fastapi_loglens(app, log_dir="logs", prefix="/loglens")
 
 ```python
 from flask import Flask
-from loglens import setup_flask_loglens
+from loglensx import setup_flask_loglens
 
 app = Flask(__name__)
 
@@ -89,7 +89,7 @@ setup_flask_loglens(app, log_dir="logs", prefix="/loglens")
 ### Standalone Usage
 
 ```python
-from loglens import LogParser, LogAnalyzer
+from loglensx import LogParser, LogAnalyzer
 
 # Parse logs
 parser = LogParser(log_dir="logs")
@@ -161,7 +161,7 @@ handler = logging.FileHandler('logs/log_file_{}.log'.format(
 ### Custom Logger Configuration
 
 ```python
-from loglens import LogParser
+from loglensx import LogParser
 
 # Use custom log directory
 parser = LogParser(log_dir="/var/log/myapp")
@@ -176,7 +176,7 @@ parser = LogParser(log_dir="logs", pattern=custom_pattern)
 ### Filter Logs
 
 ```python
-from loglens import LogAnalyzer
+from loglensx import LogAnalyzer
 
 analyzer = LogAnalyzer(parser)
 
@@ -269,7 +269,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/faisalahmedbijoy/loglens/issues).
+For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/faisalahmedbijoy/loglensx/issues).
 
 ---
 

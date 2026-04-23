@@ -5,8 +5,8 @@ import os
 import tempfile
 from pathlib import Path
 from datetime import datetime
-from loglens.core.parser import LogParser
-from loglens.core.analyzer import LogAnalyzer
+from loglensx.core.parser import LogParser
+from loglensx.core.analyzer import LogAnalyzer
 
 
 @pytest.fixture

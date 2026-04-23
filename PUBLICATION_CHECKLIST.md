@@ -50,16 +50,16 @@ password = pypi-...
 twine upload --repository testpypi dist/*
 
 # Install from TestPyPI to verify
-pip install --index-url https://test.pypi.org/simple/ loglens
+pip install --index-url https://test.pypi.org/simple/ loglensx
 
 # Test basic imports
-python -c "from loglens import LogParser, LogAnalyzer; print('Success!')"
+python -c "from loglensx import LogParser, LogAnalyzer; print('Success!')"
 ```
 
 - [ ] TestPyPI upload succeeds
 - [ ] Package installs from TestPyPI
 - [ ] Basic imports work
-- [ ] Uninstall test package: `pip uninstall loglens`
+- [ ] Uninstall test package: `pip uninstall loglensx`
 
 ## Publish to PyPI
 
@@ -82,7 +82,7 @@ twine upload dist/*
 
 ## Verify Publication
 
-- [ ] Visit https://pypi.org/project/loglens/
+- [ ] Visit https://pypi.org/project/loglensx/
 - [ ] Package page displays correctly
 - [ ] README renders properly
 - [ ] Version shows as 1.0.0
@@ -92,14 +92,14 @@ twine upload dist/*
 ## Test Installation
 
 ```bash
-pip install loglens
+pip install loglensx
 ```
 
 - [ ] Package installs without errors
 - [ ] Dependencies installed automatically
-- [ ] Can import: `from loglens import LogParser`
-- [ ] Can import: `from loglens import setup_fastapi_loglens`
-- [ ] Can import: `from loglens import setup_flask_loglens`
+- [ ] Can import: `from loglensx import LogParser`
+- [ ] Can import: `from loglensx import setup_fastapi_loglens`
+- [ ] Can import: `from loglensx import setup_flask_loglens`
 
 ## Optional: Create GitHub Release
 
@@ -171,7 +171,7 @@ twine check dist/*
 ## Success Indicators ✨
 
 - ✅ Package appears on PyPI.org
-- ✅ Users can install with `pip install loglens`
+- ✅ Users can install with `pip install loglensx`
 - ✅ Users can import all modules without errors
 - ✅ Dashboard works with FastAPI/Flask
 - ✅ Examples run successfully
@@ -188,9 +188,9 @@ rm -rf build dist *.egg-info && python -m build && twine upload dist/*
 
 After publishing, provide these links:
 
-- **Package Page:** https://pypi.org/project/loglens/
-- **GitHub (if exists):** https://github.com/yourusername/loglens
-- **Installation:** `pip install loglens` or `pip install loglens[fastapi]`
+- **Package Page:** https://pypi.org/project/loglensx/
+- **GitHub (if exists):** https://github.com/yourusername/loglensx
+- **Installation:** `pip install loglensx` or `pip install loglensx[fastapi]`
 - **Quick Start:** See QUICKSTART.md or README.md
 - **Examples:** See examples/ directory
 
