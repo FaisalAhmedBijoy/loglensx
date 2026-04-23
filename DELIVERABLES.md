@@ -321,7 +321,7 @@ pytest tests/
 ## 📋 Configuration & Metadata
 
 ### Package Metadata (pyproject.toml)
-- Name: loglensx
+- Name: loglens
 - Version: 1.0.0
 - Description: Interactive log viewer with charts
 - Keywords: logging, visualization, fastapi, flask
@@ -360,7 +360,7 @@ pytest tests/
 
 1. **Build the package:**
    ```bash
-   cd "e:\Code and Tutorial Practice\RND\loglensx"
+   cd "e:\Code and Tutorial Practice\RND\loglens"
    python -m build
    ```
 
@@ -426,7 +426,7 @@ pip install loglensx[flask]    # With Flask
 
 Your LogLens package is production-ready and all files are in place at:
 ```
-e:\Code and Tutorial Practice\RND\loglensx
+e:\Code and Tutorial Practice\RND\loglens
 ```
 
 **Happy publishing! 🚀**

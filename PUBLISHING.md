@@ -66,7 +66,7 @@ pip install --index-url https://test.pypi.org/simple/ loglensx
 ## Step 5: Update Version
 
 Edit version in:
-- `loglensx/__init__.py`
+- `loglens/__init__.py`
 - `setup.py`
 - `pyproject.toml`
 

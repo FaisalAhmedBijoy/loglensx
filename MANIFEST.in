@@ -1,4 +1,4 @@
-recursive-include loglensx *.py
+recursive-include loglens *.py
 include README.md
 include LICENSE
 include CHANGELOG.md

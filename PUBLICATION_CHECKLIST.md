@@ -122,7 +122,7 @@ git push origin v1.0.0
 
 - [ ] Update project website (if exists)
 - [ ] Announce on social media
-- [ ] Add badge to README: `[![PyPI version](https://badge.fury.io/py/loglensx.svg)](https://badge.fury.io/py/loglensx)`
+- [ ] Add badge to README: `[![PyPI version](https://badge.fury.io/py/loglens.svg)](https://badge.fury.io/py/loglens)`
 - [ ] Monitor PyPI download statistics
 - [ ] Watch for issues and pull requests
 - [ ] Plan next version features
