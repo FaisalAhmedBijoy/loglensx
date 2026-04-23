@@ -9,7 +9,7 @@ description = "Interactive log viewer with charts and visualizations for FastAPI
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "LogLens Contributors", email = "faisa.cse16.kuet@gmail.com"}
+    {name = "LogLens Contributors", email = "faisal.cse16.kuet@gmail.com"}
 ]
 keywords = [
     "logging",
@@ -58,16 +58,16 @@ dev = [
 ]
 
 [project.scripts]
-loglens = "loglens.cli:main"
+loglens = "loglensx.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/faisalahmedbijoy/loglens"
-Documentation = "https://loglens.readthedocs.io"
-Repository = "https://github.com/faisalahmedbijoy/loglens.git"
-"Bug Tracker" = "https://github.com/faisalahmedbijoy/loglens/issues"
+Homepage = "https://github.com/faisalahmedbijoy/loglensx"
+Documentation = "https://loglensx.readthedocs.io"
+Repository = "https://github.com/faisalahmedbijoy/loglensx.git"
+"Bug Tracker" = "https://github.com/faisalahmedbijoy/loglensx/issues"
 
 [tool.setuptools]
-packages = ["loglens", "loglens.core", "loglens.integrations", "loglens.visualizers"]
+packages = ["loglensx", "loglensx.core", "loglensx.integrations", "loglensx.visualizers"]
 
 [tool.black]
 line-length = 100
@@ -81,4 +81,4 @@ disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=loglens --cov-report=html --cov-report=term-missing"
+addopts = "--cov=loglensx --cov-report=html --cov-report=term-missing"
