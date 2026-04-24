@@ -99,7 +99,7 @@ BASE_STYLES = """
 """
 
 
-def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/loglens") -> None:
+def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/loglensx") -> None:
     """
     Setup loglensx routes in a Flask application.
 

@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(title="loglensx FastAPI Example")
 
-# Setup LogLens
+# Setup loglensx
 setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     print("loglensx FastAPI Example")
     print("="*60)
     print("Main app:  http://localhost:8000/")
-    print("LogLensx:   http://localhost:8000/loglensx/")
+    print("loglensx:   http://localhost:8000/loglensx/")
     print("API Docs:  http://localhost:8000/docs")
     print("="*60 + "\n")
     

@@ -1,4 +1,4 @@
-"""Test suite for LogLens."""
+"""Test suite for loglensx."""
 
 import pytest
 import os

@@ -1,4 +1,4 @@
-"""Quick start CLI for LogLens."""
+"""Quick start CLI for loglensx."""
 
 import sys
 import logging

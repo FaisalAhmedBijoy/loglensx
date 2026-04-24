@@ -9,8 +9,8 @@ Your loglensx package is fully developed, tested, and ready for publication to P
 ## 📦 Project Structure
 
 ```
-loglens/
-├── loglens/                          # Main package
+loglensx/
+├── loglensx/                          # Main package
 │   ├── __init__.py                  # Package initialization & exports
 │   ├── cli.py                       # Command-line interface
 │   ├── core/
@@ -31,7 +31,7 @@ loglens/
 │   ├── standalone_example.py        # Standalone usage example
 │   └── __init__.py
 ├── tests/
-│   ├── test_loglens.py              # Comprehensive test suite
+│   ├── test_loglensx.py              # Comprehensive test suite
 │   └── __init__.py
 ├── setup.py                         # Setup configuration
 ├── pyproject.toml                   # Modern Python packaging
@@ -71,11 +71,11 @@ loglens/
 ✅ **Standalone** - Can be used without web frameworks
 
 ### API Endpoints
-✅ GET `/loglens/` - Main dashboard
-✅ GET `/loglens/api/logs` - Filtered log access
-✅ GET `/loglens/api/stats` - Statistics endpoint
-✅ GET `/loglens/api/search` - Search endpoint
-✅ GET `/loglens/api/files` - List log files
+✅ GET `/loglensx/` - Main dashboard
+✅ GET `/loglensx/api/logs` - Filtered log access
+✅ GET `/loglensx/api/stats` - Statistics endpoint
+✅ GET `/loglensx/api/search` - Search endpoint
+✅ GET `/loglensx/api/files` - List log files
 
 ---
 
@@ -156,8 +156,8 @@ pip install loglensx[dev]
 4. **CHANGELOG.md** - Version history (currently v1.0.0)
 
 5. **Code Examples** - 3 complete working examples:
-   - FastAPI with LogLens
-   - Flask with LogLens
+   - FastAPI with loglensx
+   - Flask with loglensx
    - Standalone usage
 
 ---
@@ -217,12 +217,12 @@ setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 ### Flask
 ```python
 from flask import Flask
-from loglensx import setup_flask_loglens
+from loglensx import setup_flask_loglensx
 
 app = Flask(__name__)
-setup_flask_loglens(app, log_dir="logs", prefix="/loglens")
+setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
 
-# Visit http://localhost:5000/loglens/
+# Visit http://localhost:5000/loglensx/
 ```
 
 ### Standalone
@@ -419,14 +419,14 @@ Your loglensx package is complete and ready for the world!
 
 **To publish:**
 ```bash
-cd "e:\Code and Tutorial Practice\RND\loglens"
+cd "e:\Code and Tutorial Practice\RND\loglensx"
 python -m build
 twine upload dist/*
 ```
 
 **Users can then install with:**
 ```bash
-pip install loglens
+pip install loglensx
 ```
 
 Happy publishing! 🚀

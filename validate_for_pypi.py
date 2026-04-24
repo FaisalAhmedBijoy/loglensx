@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pre-publication validation script for LogLens.
+Pre-publication validation script for loglensx.
 Run this before publishing to PyPI.
 """
 
@@ -32,7 +32,7 @@ def check_files():
         'examples/fastapi_example.py',
         'examples/flask_example.py',
         'examples/standalone_example.py',
-        'tests/test_loglens.py',
+        'tests/test_loglensx.py',
     ]
 
     print("✓ Checking required files...")
@@ -133,7 +133,7 @@ def check_readme():
         content = f.read()
 
     checks = [
-        ('Has title', '# LogLens' in content),
+        ('Has title', '# loglensx' in content),
         ('Has features', 'Features' in content or 'features' in content),
         ('Has installation', 'Installation' in content or 'installation' in content),
         ('Has license', 'MIT' in content or 'License' in content),

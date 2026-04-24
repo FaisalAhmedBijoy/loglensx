@@ -105,7 +105,7 @@ BASE_STYLES = """
 """
 
 
-def setup_fastapi_loglensx(app: FastAPI, log_dir: str = "logs", prefix: str = "/loglens") -> None:
+def setup_fastapi_loglensx(app: FastAPI, log_dir: str = "logs", prefix: str = "/loglensx") -> None:
     """
     Setup loglensx routes in a FastAPI application.
 

@@ -1,4 +1,4 @@
-# LogLensx - Interactive Log Viewer
+# loglensx - Interactive Log Viewer
 
 [![PyPI version](https://badge.fury.io/py/loglensx.svg)](https://badge.fury.io/py/loglensx)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
@@ -76,14 +76,14 @@ setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 ```python
 from flask import Flask
-from loglensx import setup_flask_loglens
+from loglensx import setup_flask_loglensx
 
 app = Flask(__name__)
 
-# Setup LogLens
-setup_flask_loglens(app, log_dir="logs", prefix="/loglens")
+# Setup loglensx
+setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
 
-# Access the dashboard at http://localhost:5000/loglens/
+# Access the dashboard at http://localhost:5000/loglensx/
 ```
 
 ### Standalone Usage
@@ -127,13 +127,13 @@ Custom format? loglensx accepts regex patterns for custom parsing.
 When integrated with FastAPI or Flask, loglensx exposes these API endpoints:
 
 ### Dashboard
-- `GET /loglens/` - Main dashboard
+- `GET /loglensx/` - Main dashboard
 
 ### API Endpoints
-- `GET /loglens/api/logs?search=term&level=ERROR&limit=100` - Get filtered logs
-- `GET /loglens/api/stats` - Get statistics and summary
-- `GET /loglens/api/search?q=query` - Search logs
-- `GET /loglens/api/files` - List available log files
+- `GET /loglensx/api/logs?search=term&level=ERROR&limit=100` - Get filtered logs
+- `GET /loglensx/api/stats` - Get statistics and summary
+- `GET /loglensx/api/search?q=query` - Search logs
+- `GET /loglensx/api/files` - List available log files
 
 ## Configuration
 
@@ -209,7 +209,7 @@ error_freq = analyzer.get_error_frequency(hours=24)
 ### Generate Visualizations
 
 ```python
-from loglens.visualizers import ChartGenerator, TableGenerator
+from loglensx.visualizers import ChartGenerator, TableGenerator
 
 # Generate charts (returns JSON for Plotly)
 level_chart = ChartGenerator.plotly_level_distribution(level_stats)
@@ -255,8 +255,8 @@ analyzer.get_log_summary()  # Uses limited logs
 
 See the [examples/](examples/) directory for complete working examples:
 
-- `fastapi_example.py` - FastAPI integration with LogLens
-- `flask_example.py` - Flask integration with LogLens
+- `fastapi_example.py` - FastAPI integration with loglensx
+- `flask_example.py` - Flask integration with loglensx
 - `standalone_example.py` - Standalone usage without frameworks
 
 ## Contributing

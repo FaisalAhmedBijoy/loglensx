@@ -1,4 +1,4 @@
-"""Setup configuration for LogLens."""
+"""Setup configuration for loglensx."""
 
 from setuptools import setup, find_packages
 
@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "loglens=loglensx.cli:main",
+            "loglensx=loglensx.cli:main",
         ],
     },
     author="loglensx Contributors",

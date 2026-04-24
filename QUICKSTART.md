@@ -1,4 +1,4 @@
-# Quick Start Guide for LogLens
+# Quick Start Guide for loglensx
 
 ## Installation
 
@@ -52,7 +52,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Setup LogLens
+# Setup loglensx
 setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 @app.get("/")
@@ -74,14 +74,14 @@ uvicorn main:app --reload
 
 Visit:
 - App: http://localhost:8000/
-- LogLens: http://localhost:8000/loglens/
+- loglensx: http://localhost:8000/loglensx/
 
 ### 2. Flask Setup (3 minutes)
 
 ```python
 # app.py
 from flask import Flask, jsonify
-from loglensx import setup_flask_loglens
+from loglensx import setup_flask_loglensx
 import logging
 from datetime import datetime
 import os
@@ -104,8 +104,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Setup LogLens
-setup_flask_loglens(app, log_dir="logs", prefix="/loglens")
+# Setup loglensx
+setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 @app.route("/")
 def home():
@@ -125,7 +125,7 @@ python app.py
 
 Visit:
 - App: http://localhost:5000/
-- LogLens: http://localhost:5000/loglens/
+- loglensx: http://localhost:5000/loglensx/
 
 ### 3. Standalone Usage (2 minutes)
 
@@ -165,20 +165,20 @@ for error in errors:
 
 ```bash
 # Get dashboard
-curl http://localhost:8000/loglens/
+curl http://localhost:8000/loglensx/
 
 # Get logs (with filters)
-curl http://localhost:8000/loglens/api/logs?level=ERROR&limit=10
-curl http://localhost:8000/loglens/api/logs?search=database
+curl http://localhost:8000/loglensx/api/logs?level=ERROR&limit=10
+curl http://localhost:8000/loglensx/api/logs?search=database
 
 # Get statistics
-curl http://localhost:8000/loglens/api/stats
+curl http://localhost:8000/loglensx/api/stats
 
 # Search logs
-curl http://localhost:8000/loglens/api/search?q=error
+curl http://localhost:8000/loglensx/api/search?q=error
 
 # List log files
-curl http://localhost:8000/loglens/api/files
+curl http://localhost:8000/loglensx/api/files
 ```
 
 ## Log Format
@@ -229,7 +229,7 @@ logger.addHandler(handler)
 - Check README.md for detailed documentation
 - Look at examples/ for working code
 - Review PUBLISHING.md for deployment info
-- Check test_loglens.py for API usage examples
+- Check test_loglensx.py for API usage examples
 
 ## What's Next?
 

@@ -27,7 +27,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Setup LogLensx
+# Setup loglensx
 setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     print("loglensx Flask Example")
     print("="*60)
     print("Main app:  http://localhost:5000/")
-    print("LogLensx:   http://localhost:5000/loglensx/")
+    print("loglensx:   http://localhost:5000/loglensx/")
     print("="*60 + "\n")
     
     app.run(debug=False, port=5000)
