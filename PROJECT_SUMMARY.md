@@ -1,8 +1,8 @@
-# LogLens - Complete Project Summary
+# loglensx - Complete Project Summary
 
 ## 🎉 Project Status: COMPLETE & READY FOR PYPI
 
-Your LogLens package is fully developed, tested, and ready for publication to PyPI!
+Your loglensx package is fully developed, tested, and ready for publication to PyPI!
 
 ---
 
@@ -206,12 +206,12 @@ Tests cover:
 ### FastAPI
 ```python
 from fastapi import FastAPI
-from loglensx import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglensx
 
 app = FastAPI()
-setup_fastapi_loglens(app, log_dir="logs", prefix="/loglens")
+setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
-# Visit http://localhost:8000/loglens/
+# Visit http://localhost:8000/loglensx/
 ```
 
 ### Flask
@@ -331,8 +331,8 @@ TableGenerator.statistics_to_html(stats)
 
 ### Framework Integration
 ```python
-setup_fastapi_loglens(app, log_dir, prefix)
-setup_flask_loglens(app, log_dir, prefix)
+setup_fastapi_loglensx(app, log_dir, prefix)
+setup_flask_loglensx(app, log_dir, prefix)
 ```
 
 ---
@@ -415,7 +415,7 @@ setup_flask_loglens(app, log_dir, prefix)
 
 ## 🎉 Congratulations!
 
-Your LogLens package is complete and ready for the world!
+Your loglensx package is complete and ready for the world!
 
 **To publish:**
 ```bash

@@ -1,5 +1,5 @@
 """
-Standalone example showing LogLens usage without web frameworks.
+Standalone example showing loglensx usage without web frameworks.
 """
 
 import logging
@@ -55,7 +55,7 @@ def generate_sample_logs():
 def display_summary(analyzer):
     """Display log summary."""
     print("="*60)
-    print("LogLens Summary")
+    print("loglensx Summary")
     print("="*60)
     
     summary = analyzer.get_log_summary()
@@ -165,7 +165,7 @@ def filter_logs(analyzer):
 def main():
     """Main function."""
     print("\n" + "="*60)
-    print("LogLens Standalone Example")
+    print("loglensx Standalone Example")
     print("="*60 + "\n")
     
     # Generate sample logs

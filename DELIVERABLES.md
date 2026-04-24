@@ -238,8 +238,8 @@ tests/
 - `statistics_to_html()` - Stats display
 
 ### Integration Functions
-- `setup_fastapi_loglens()` - FastAPI setup
-- `setup_flask_loglens()` - Flask setup
+- `setup_fastapi_loglensx()` - FastAPI setup
+- `setup_flask_loglensx()` - Flask setup
 
 ---
 
@@ -272,8 +272,8 @@ pip install loglensx[dev]
 ### FastAPI (3 lines)
 ```python
 from fastapi import FastAPI
-from loglensx import setup_fastapi_loglens
-setup_fastapi_loglens(FastAPI())  # Visit /loglens/
+from loglensx import setup_fastapi_loglensx
+setup_fastapi_loglensx(FastAPI())  # Visit /loglens/
 ```
 
 ### Flask (3 lines)
@@ -424,7 +424,7 @@ pip install loglensx[flask]    # With Flask
 
 ## 🏆 Ready to Ship!
 
-Your LogLens package is production-ready and all files are in place at:
+Your loglensx package is production-ready and all files are in place at:
 ```
 e:\Code and Tutorial Practice\RND\loglens
 ```

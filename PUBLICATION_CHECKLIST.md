@@ -1,4 +1,4 @@
-# LogLens - Publication Checklist ✅
+# loglensx - Publication Checklist ✅
 
 ## Pre-Publication Verification
 
@@ -98,8 +98,8 @@ pip install loglensx
 - [ ] Package installs without errors
 - [ ] Dependencies installed automatically
 - [ ] Can import: `from loglensx import LogParser`
-- [ ] Can import: `from loglensx import setup_fastapi_loglens`
-- [ ] Can import: `from loglensx import setup_flask_loglens`
+- [ ] Can import: `from loglensx import setup_fastapi_loglensx`
+- [ ] Can import: `from loglensx import setup_flask_loglensx`
 
 ## Optional: Create GitHub Release
 
@@ -198,7 +198,7 @@ After publishing, provide these links:
 
 ## Final Notes
 
-✅ **LogLens is ready for publication!**
+✅ **loglensx is ready for publication!**
 
 All code is complete, tested, documented, and packaged for PyPI.
 

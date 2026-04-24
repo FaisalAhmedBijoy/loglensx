@@ -9,7 +9,7 @@ description = "Interactive log viewer with charts and visualizations for FastAPI
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "LogLens Contributors", email = "faisal.cse16.kuet@gmail.com"}
+    {name = "loglensx Contributors", email = "faisal.cse16.kuet@gmail.com"}
 ]
 keywords = [
     "logging",
@@ -58,7 +58,7 @@ dev = [
 ]
 
 [project.scripts]
-loglens = "loglensx.cli:main"
+loglensx = "loglensx.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/faisalahmedbijoy/loglensx"

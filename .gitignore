@@ -59,7 +59,7 @@ env/
 *~
 .DS_Store
 
-# LogLens specific
+# loglensx specific
 logs/
 visualizations/
 *.log

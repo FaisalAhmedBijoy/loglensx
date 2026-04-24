@@ -29,7 +29,7 @@ pip install loglensx[dev]
 ```python
 # main.py
 from fastapi import FastAPI
-from loglensx import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglensx
 import logging
 from datetime import datetime
 import os
@@ -53,7 +53,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Setup LogLens
-setup_fastapi_loglens(app, log_dir="logs", prefix="/loglens")
+setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 @app.get("/")
 def read_root():
@@ -183,7 +183,7 @@ curl http://localhost:8000/loglens/api/files
 
 ## Log Format
 
-LogLens expects logs in this format:
+loglensx expects logs in this format:
 
 ```
 [2024-01-15 10:30:45] [ERROR] [app.module] Error message here
@@ -233,9 +233,9 @@ logger.addHandler(handler)
 
 ## What's Next?
 
-- Deploy your app with LogLens enabled
+- Deploy your app with loglensx enabled
 - Monitor your application logs in real-time
 - Share insights with your team using the dashboard
-- Integrate LogLens into your CI/CD pipeline
+- Integrate loglensx into your CI/CD pipeline
 
 Happy logging! 🎉

@@ -27,7 +27,7 @@ setup(
             "loglens=loglensx.cli:main",
         ],
     },
-    author="LogLens Contributors",
+    author="loglensx Contributors",
     author_email="faisal.cse16.kuet@gmail.com",
     description="Interactive log viewer with charts and visualizations for FastAPI and Flask",
     long_description=open("README.md", encoding="utf-8").read(),

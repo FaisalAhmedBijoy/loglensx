@@ -19,7 +19,7 @@ def main() -> int:
         summary = analyzer.get_log_summary()
 
         print("\n" + "=" * 60)
-        print("                   LogLens Summary                    ")
+        print("                   loglensx Summary                    ")
         print("=" * 60)
         print(f"Total Logs:         {summary.get('total_logs', 0)}")
         print(f"Errors:             {summary.get('error_count', 0)}")

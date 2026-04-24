@@ -1,5 +1,5 @@
 """
-Flask integration for LogLens viewer.
+Flask integration for loglensx viewer.
 """
 
 from flask import Flask, Blueprint, render_template_string, jsonify, request
@@ -11,16 +11,16 @@ from ..visualizers.charts import ChartGenerator
 from ..visualizers.tables import TableGenerator
 
 
-def setup_flask_loglens(app: Flask, log_dir: str = "logs", prefix: str = "/loglens") -> None:
+def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/loglens") -> None:
     """
-    Setup LogLens routes in a Flask application.
+    Setup loglensx routes in a Flask application.
 
     Args:
         app: Flask application instance
         log_dir: Directory containing log files
-        prefix: URL prefix for LogLens routes
+        prefix: URL prefix for loglensx routes
     """
-    blueprint = Blueprint("loglens", __name__, url_prefix=prefix)
+    blueprint = Blueprint("loglensx", __name__, url_prefix=prefix)
     parser = LogParser(log_dir=log_dir)
     analyzer = LogAnalyzer(parser)
 
@@ -29,7 +29,7 @@ def setup_flask_loglens(app: Flask, log_dir: str = "logs", prefix: str = "/logle
     <!DOCTYPE html>
     <html>
     <head>
-        <title>LogLens - Log Viewer</title>
+        <title>loglensx - Log Viewer</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -62,14 +62,14 @@ def setup_flask_loglens(app: Flask, log_dir: str = "logs", prefix: str = "/logle
     <body>
         <div class="container">
             <div class="header">
-                <h1>📊 LogLens Dashboard</h1>
+                <h1>📊 loglensx Dashboard</h1>
                 <p>Interactive Log Viewer & Analyzer</p>
             </div>
 
             <div class="nav">
-                <a href="{{ url_for('loglens.dashboard') }}">Dashboard</a>
-                <a href="{{ url_for('loglens.get_logs') }}">View Logs</a>
-                <a href="{{ url_for('loglens.api_stats') }}">Statistics</a>
+                <a href="{{ url_for('loglensx.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('loglensx.get_logs') }}">View Logs</a>
+                <a href="{{ url_for('loglensx.api_stats') }}">Statistics</a>
             </div>
 
             <div class="search-box">
@@ -106,7 +106,7 @@ def setup_flask_loglens(app: Flask, log_dir: str = "logs", prefix: str = "/logle
         </div>
 
         <script>
-            fetch('{{ url_for("loglens.api_stats") }}')
+            fetch('{{ url_for("loglensx.api_stats") }}')
                 .then(r => r.json())
                 .then(data => {
                     const stats = data.summary;
@@ -159,7 +159,7 @@ def setup_flask_loglens(app: Flask, log_dir: str = "logs", prefix: str = "/logle
 
     @blueprint.route("/")
     def dashboard():
-        """Main LogLens dashboard."""
+        """Main loglensx dashboard."""
         return render_template_string(dashboard_template)
 
     @blueprint.route("/api/logs")

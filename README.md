@@ -4,7 +4,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A powerful, interactive log viewer and analyzer for Python web applications. LogLens provides beautiful dashboards with real-time charts, tables, and analytics for your application logs.
+A powerful, interactive log viewer and analyzer for Python web applications. loglensx provides beautiful dashboards with real-time charts, tables, and analytics for your application logs.
 
 ## Features
 
@@ -21,7 +21,7 @@ A powerful, interactive log viewer and analyzer for Python web applications. Log
 - Full-text search across logs
 
 🚀 **Framework Integration**
-- **FastAPI** - Add LogLens with a single function call
+- **FastAPI** - Add loglensx with a single function call
 - **Flask** - Seamless Flask integration
 - Works with any Python logging setup
 
@@ -33,7 +33,7 @@ A powerful, interactive log viewer and analyzer for Python web applications. Log
 
 ## Installation
 
-Install LogLens from PyPI:
+Install loglensx from PyPI:
 
 ```bash
 pip install loglensx
@@ -62,14 +62,14 @@ pip install loglensx[dev]
 
 ```python
 from fastapi import FastAPI
-from loglensx import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglensx
 
 app = FastAPI()
 
-# Setup LogLens at your preferred URL prefix
-setup_fastapi_loglens(app, log_dir="logs", prefix="/loglens")
+# Setup loglensx at your preferred URL prefix
+setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
-# Now access the dashboard at http://localhost:8000/loglens/
+# Now access the dashboard at http://localhost:8000/loglensx/
 ```
 
 ### Flask Integration
@@ -112,7 +112,7 @@ print(f"Found {len(results)} matching logs")
 
 ## Log Format Support
 
-LogLens automatically detects and parses common log formats:
+loglensx automatically detects and parses common log formats:
 
 ```
 [2024-01-15 10:30:45] [ERROR] [my_app.database] Connection timeout
@@ -120,11 +120,11 @@ LogLens automatically detects and parses common log formats:
 [2024-01-15 10:30:47] [INFO] [my_app.api] GET /users/123 - 200
 ```
 
-Custom format? LogLens accepts regex patterns for custom parsing.
+Custom format? loglensx accepts regex patterns for custom parsing.
 
 ## API Endpoints
 
-When integrated with FastAPI or Flask, LogLens exposes these API endpoints:
+When integrated with FastAPI or Flask, loglensx exposes these API endpoints:
 
 ### Dashboard
 - `GET /loglens/` - Main dashboard
@@ -139,7 +139,7 @@ When integrated with FastAPI or Flask, LogLens exposes these API endpoints:
 
 ### Log Directory Structure
 
-LogLens expects logs in the following format:
+loglensx expects logs in the following format:
 
 ```
 logs/
@@ -222,7 +222,7 @@ html_table = TableGenerator.logs_to_html_table(errors, title="Recent Errors")
 
 ## Performance Considerations
 
-- **Large Log Files**: LogLens efficiently handles large log files
+- **Large Log Files**: loglensx efficiently handles large log files
 - **Real-time Parsing**: Use `limit` parameter to control parsing scope
 - **Caching**: Implement caching for frequently accessed data in production
 

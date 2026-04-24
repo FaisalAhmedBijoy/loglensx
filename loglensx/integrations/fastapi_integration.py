@@ -1,5 +1,5 @@
 """
-FastAPI integration for LogLens viewer.
+FastAPI integration for loglensx viewer.
 """
 
 from fastapi import FastAPI, APIRouter, Query, HTTPException
@@ -12,23 +12,23 @@ from ..visualizers.charts import ChartGenerator
 from ..visualizers.tables import TableGenerator
 
 
-def setup_fastapi_loglens(app: FastAPI, log_dir: str = "logs", prefix: str = "/loglens") -> None:
+def setup_fastapi_loglensx(app: FastAPI, log_dir: str = "logs", prefix: str = "/loglens") -> None:
     """
-    Setup LogLens routes in a FastAPI application.
+    Setup loglensx routes in a FastAPI application.
 
     Args:
         app: FastAPI application instance
         log_dir: Directory containing log files
-        prefix: URL prefix for LogLens routes
+        prefix: URL prefix for loglensx routes
     """
     parser = LogParser(log_dir=log_dir)
     analyzer = LogAnalyzer(parser)
-    router = APIRouter(prefix=prefix, tags=["loglens"])
+    router = APIRouter(prefix=prefix, tags=["loglensx"])
 
     # Dashboard HTML
     @router.get("/", response_class=HTMLResponse)
     def dashboard():
-        """Main LogLens dashboard."""
+        """Main loglensx dashboard."""
         summary = analyzer.get_log_summary()
         level_stats = analyzer.get_level_statistics()
         top_loggers = analyzer.get_top_loggers(limit=5)
@@ -45,7 +45,7 @@ def setup_fastapi_loglens(app: FastAPI, log_dir: str = "logs", prefix: str = "/l
         <!DOCTYPE html>
         <html>
         <head>
-            <title>LogLens - Log Viewer</title>
+            <title>loglensx - Log Viewer</title>
             <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
             <style>
                 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
@@ -78,7 +78,7 @@ def setup_fastapi_loglens(app: FastAPI, log_dir: str = "logs", prefix: str = "/l
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>📊 LogLens Dashboard</h1>
+                    <h1>📊 loglensx Dashboard</h1>
                     <p>Interactive Log Viewer & Analyzer</p>
                 </div>
 

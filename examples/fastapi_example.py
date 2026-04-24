@@ -1,12 +1,12 @@
 """
-FastAPI example showing LogLens integration.
+FastAPI example showing loglensx integration.
 """
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import logging
 from datetime import datetime
-from loglensx import setup_fastapi_loglens
+from loglensx import setup_fastapi_loglensx
 
 # Configure logging
 import os
@@ -26,17 +26,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Create FastAPI app
-app = FastAPI(title="LogLens FastAPI Example")
+app = FastAPI(title="loglensx FastAPI Example")
 
 # Setup LogLens
-setup_fastapi_loglens(app, log_dir="logs", prefix="/loglens")
+setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 
 @app.get("/")
 def read_root():
     """Root endpoint."""
     logger.info("Root endpoint accessed")
-    return {"message": "Welcome to LogLens FastAPI Example", "logs_url": "/loglens/"}
+    return {"message": "Welcome to loglensx FastAPI Example", "logs_url": "/loglens/"}
 
 
 @app.get("/api/items/{item_id}")
@@ -82,7 +82,7 @@ def test_error():
 if __name__ == "__main__":
     import uvicorn
     print("\n" + "="*60)
-    print("LogLens FastAPI Example")
+    print("loglensx FastAPI Example")
     print("="*60)
     print("Main app:  http://localhost:8000/")
     print("LogLens:   http://localhost:8000/loglens/")

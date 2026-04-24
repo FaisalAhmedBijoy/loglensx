@@ -76,9 +76,9 @@ def check_imports():
         print("  ✓ LogParser imported successfully")
         print("  ✓ LogAnalyzer imported successfully")
 
-        from loglensx.integrations import setup_fastapi_loglens, setup_flask_loglens
-        print("  ✓ setup_fastapi_loglens imported successfully")
-        print("  ✓ setup_flask_loglens imported successfully")
+        from loglensx.integrations import setup_fastapi_loglensx, setup_flask_loglensx
+        print("  ✓ setup_fastapi_loglensx imported successfully")
+        print("  ✓ setup_flask_loglensx imported successfully")
 
         from loglensx.visualizers import ChartGenerator, TableGenerator
         print("  ✓ ChartGenerator imported successfully")
@@ -152,7 +152,7 @@ def check_readme():
 def main():
     """Run all checks."""
     print("=" * 60)
-    print("LogLens Pre-Publication Validation")
+    print("loglensx Pre-Publication Validation")
     print("=" * 60 + "\n")
 
     checks = [

@@ -1,11 +1,11 @@
 """
-Flask example showing LogLens integration.
+Flask example showing loglensx integration.
 """
 
 from flask import Flask, jsonify
 import logging
 from datetime import datetime
-from loglensx import setup_flask_loglens
+from loglensx import setup_flask_loglensx
 import os
 
 # Create Flask app
@@ -28,7 +28,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Setup LogLens
-setup_flask_loglens(app, log_dir="logs", prefix="/loglens")
+setup_flask_loglensx(app, log_dir="logs", prefix="/loglens")
 
 
 @app.route("/")
@@ -36,7 +36,7 @@ def home():
     """Home route."""
     logger.info("Home page accessed")
     return jsonify({
-        "message": "Welcome to LogLens Flask Example",
+        "message": "Welcome to loglensx Flask Example",
         "logs_url": "/loglens/"
     })
 
@@ -98,7 +98,7 @@ def internal_error(error):
 
 if __name__ == "__main__":
     print("\n" + "="*60)
-    print("LogLens Flask Example")
+    print("loglensx Flask Example")
     print("="*60)
     print("Main app:  http://localhost:5000/")
     print("LogLens:   http://localhost:5000/loglens/")
