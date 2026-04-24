@@ -3,6 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/loglensx.svg)](https://badge.fury.io/py/loglensx)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/loglensx?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/loglensx)
 
 `loglensx` is an interactive log viewer and analysis toolkit for Python applications. It parses standard application log files, summarizes errors and warnings, generates Plotly visualizations, and adds a professional dashboard to FastAPI or Flask apps with a single setup function.
 
