@@ -7,6 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from loglensx.core.parser import LogParser
 from loglensx.core.analyzer import LogAnalyzer
+from loglensx.visualizers.tables import TableGenerator
 
 
 @pytest.fixture
@@ -117,6 +118,46 @@ class TestLogAnalyzer:
         # Filter by search term
         results = analyzer.filter_logs(search_term="cache")
         assert len(results) > 0
+
+
+class TestTableGenerator:
+    """Test HTML generation for log tables."""
+
+    def test_logs_to_html_table_includes_source_and_badges(self):
+        """Table should render level badges and file source information."""
+        entries = [
+            {
+                "timestamp": "2024-01-15 10:30:45",
+                "level": "ERROR",
+                "logger": "app.database",
+                "message": "Connection timeout while fetching user profile",
+                "file": "app.log",
+                "line_num": 42,
+            }
+        ]
+
+        html = TableGenerator.logs_to_html_table(entries, title="Log Explorer")
+        assert "Log Explorer" in html
+        assert "ERROR" in html
+        assert "app.log:42" in html
+        assert "Visible Logs" in html
+
+    def test_logs_to_html_table_uses_expandable_message_for_long_entries(self):
+        """Long messages should be expandable instead of abruptly cut off."""
+        entries = [
+            {
+                "timestamp": "2024-01-15 10:30:45",
+                "level": "INFO",
+                "logger": "app.api",
+                "message": "A" * 220,
+                "file": "api.log",
+                "line_num": 7,
+            }
+        ]
+
+        html = TableGenerator.logs_to_html_table(entries)
+        assert "<details>" in html
+        assert "api.log:7" in html
 
 
 if __name__ == "__main__":
