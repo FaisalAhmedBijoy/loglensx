@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Refreshed non-README project documentation for the current dashboard, visualization viewer, and publishing workflow.
 - Reworked release checklists to emphasize version consistency across `pyproject.toml`, `setup.py`, and `loglensx/__init__.py`.
 
-## [1.0.2] - 2026-04-24
+## [1.0.3] - 2026-04-24
 
 ### Added
 
@@ -41,7 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Improved integration naming consistency.
 - Verified route registration and package exports across Flask and FastAPI.
 
-## [1.0.0] - 2024-01-15
+## [1.0.0] - 2026-04-23
 
 ### Added
 
@@ -57,7 +57,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Packaging configuration for PyPI.
 - MIT License.
 
-## [0.0.2] - 2024-01-01
+## [0.0.2] - 2026-04-23
 
 ### Added
 
