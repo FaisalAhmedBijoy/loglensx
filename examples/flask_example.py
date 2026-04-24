@@ -104,4 +104,4 @@ if __name__ == "__main__":
     print("LogLensx:   http://localhost:5000/loglensx/")
     print("="*60 + "\n")
     
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)
