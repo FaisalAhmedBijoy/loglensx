@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "loglensx"
-version = "1.0.0"
+version = "1.0.1"
 description = "Interactive log viewer with charts and visualizations for FastAPI and Flask"
 readme = "README.md"
 license = {text = "MIT"}
