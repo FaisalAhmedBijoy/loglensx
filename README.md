@@ -1,276 +1,435 @@
-# loglensx - Interactive Log Viewer
+# loglensx
 
 [![PyPI version](https://badge.fury.io/py/loglensx.svg)](https://badge.fury.io/py/loglensx)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A powerful, interactive log viewer and analyzer for Python web applications. loglensx provides beautiful dashboards with real-time charts, tables, and analytics for your application logs.
+`loglensx` is an interactive log viewer and analysis toolkit for Python applications. It parses standard application log files, summarizes errors and warnings, generates Plotly visualizations, and adds a professional dashboard to FastAPI or Flask apps with a single setup function.
 
-## Features
+It is designed for teams that want a lightweight operational view of local or server-side logs without deploying a full observability stack.
 
-✨ **Interactive Dashboards**
-- Real-time log visualization with charts and graphs
-- Log level distribution (pie charts)
-- Error frequency timeline
-- Top loggers analysis
+## Highlights
 
-📊 **Rich Analytics**
-- Log statistics and summary
-- Error and warning frequency tracking
-- Logger distribution analysis
-- Full-text search across logs
-
-🚀 **Framework Integration**
-- **FastAPI** - Add loglensx with a single function call
-- **Flask** - Seamless Flask integration
-- Works with any Python logging setup
-
-🎨 **Beautiful UI**
-- Responsive design with Plotly charts
-- Dark/Light theme support
-- Mobile-friendly interface
-- Real-time updates
+- Framework integrations for FastAPI and Flask
+- Responsive dashboard with metric cards, Plotly charts, and searchable tables
+- Log explorer with filters for search text, level, logger, and row limits
+- JSON APIs for logs, statistics, search results, and log file metadata
+- Standalone parser and analyzer APIs for scripts, notebooks, and CLI workflows
+- Plotly figure JSON generation for custom dashboards or static viewers
+- Support for common Python logging formats and custom regex parsing
 
 ## Installation
 
-Install loglensx from PyPI:
+Install the core package:
 
 ```bash
 pip install loglensx
 ```
 
-### With Framework Support
+Install with a web framework extra:
 
-**FastAPI:**
 ```bash
-pip install loglensx[fastapi]
+pip install "loglensx[flask]"
+pip install "loglensx[fastapi]"
 ```
 
-**Flask:**
-```bash
-pip install loglensx[flask]
-```
+Install for local development:
 
-**Development:**
 ```bash
-pip install loglensx[dev]
+pip install -e ".[dev,flask,fastapi]"
 ```
 
 ## Quick Start
 
-### FastAPI Integration
+### Flask
 
 ```python
+import logging
+import os
+from datetime import datetime
+
+from flask import Flask, jsonify
+from loglensx import setup_flask_loglensx
+
+app = Flask(__name__)
+
+os.makedirs("logs", exist_ok=True)
+log_file = f"logs/log_file_{datetime.now().strftime('%Y-%m-%d')}.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
+)
+
+logger = logging.getLogger(__name__)
+
+setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
+
+
+@app.route("/")
+def home():
+    logger.info("Home page accessed")
+    return jsonify({"status": "ok", "dashboard": "/loglensx/"})
+
+
+if __name__ == "__main__":
+    app.run(port=5000)
+```
+
+Run the app and open:
+
+```text
+http://127.0.0.1:5000/loglensx/
+```
+
+### FastAPI
+
+```python
+import logging
+import os
+from datetime import datetime
+
 from fastapi import FastAPI
 from loglensx import setup_fastapi_loglensx
 
 app = FastAPI()
 
-# Setup loglensx at your preferred URL prefix
+os.makedirs("logs", exist_ok=True)
+log_file = f"logs/log_file_{datetime.now().strftime('%Y-%m-%d')}.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
+)
+
+logger = logging.getLogger(__name__)
+
 setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 
-# Now access the dashboard at http://localhost:8000/loglensx/
+
+@app.get("/")
+def home():
+    logger.info("Root endpoint accessed")
+    return {"status": "ok", "dashboard": "/loglensx/"}
 ```
 
-### Flask Integration
+Run the app and open:
 
-```python
-from flask import Flask
-from loglensx import setup_flask_loglensx
-
-app = Flask(__name__)
-
-# Setup loglensx
-setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
-
-# Access the dashboard at http://localhost:5000/loglensx/
+```bash
+uvicorn main:app --reload
 ```
 
-### Standalone Usage
+```text
+http://127.0.0.1:8000/loglensx/
+```
+
+### Standalone Analysis
 
 ```python
-from loglensx import LogParser, LogAnalyzer
+from loglensx import LogAnalyzer, LogParser
 
-# Parse logs
 parser = LogParser(log_dir="logs")
 analyzer = LogAnalyzer(parser)
 
-# Get statistics
 summary = analyzer.get_log_summary()
-print(f"Total logs: {summary['total_logs']}")
-print(f"Errors: {summary['error_count']}")
+print(summary["total_logs"], "logs parsed")
+print(summary["error_count"], "errors found")
 
-# Get recent errors
-recent_errors = analyzer.get_recent_errors(limit=5)
-for error in recent_errors:
-    print(f"{error['timestamp']} - {error['message']}")
-
-# Search logs
-results = parser.search_logs("database", limit=50)
-print(f"Found {len(results)} matching logs")
+for entry in analyzer.get_recent_errors(limit=5):
+    print(entry["timestamp"], entry["message"])
 ```
 
-## Log Format Support
+## Dashboard
 
-loglensx automatically detects and parses common log formats:
+The integrated dashboard includes:
 
-```
-[2024-01-15 10:30:45] [ERROR] [my_app.database] Connection timeout
-[2024-01-15 10:30:46] [WARNING] [my_app.cache] Cache miss for key: user_123
-[2024-01-15 10:30:47] [INFO] [my_app.api] GET /users/123 - 200
-```
+- Summary metrics for total logs, errors, warnings, loggers, files, and stability score
+- Log level distribution chart
+- Error frequency timeline
+- Top loggers chart
+- Recent errors table with expandable long messages
+- Log explorer with server-side filters and client-side table search
+- Responsive layout for desktop and mobile screens
 
-Custom format? loglensx accepts regex patterns for custom parsing.
-
-## API Endpoints
-
-When integrated with FastAPI or Flask, loglensx exposes these API endpoints:
-
-### Dashboard
-- `GET /loglensx/` - Main dashboard
-
-### API Endpoints
-- `GET /loglensx/api/logs?search=term&level=ERROR&limit=100` - Get filtered logs
-- `GET /loglensx/api/stats` - Get statistics and summary
-- `GET /loglensx/api/search?q=query` - Search logs
-- `GET /loglensx/api/files` - List available log files
-
-## Configuration
-
-### Log Directory Structure
-
-loglensx expects logs in the following format:
-
-```
-logs/
-  ├── log_file_2024-01-15.log
-  ├── log_file_2024-01-14.log
-  └── log_file_2024-01-13.log
-```
-
-This works perfectly with the standard Python logging configuration:
+Mount path is controlled by the `prefix` argument:
 
 ```python
-import logging
-
-handler = logging.FileHandler('logs/log_file_{}.log'.format(
-    datetime.now().strftime('%Y-%m-%d')
-))
+setup_flask_loglensx(app, log_dir="logs", prefix="/internal/logs")
+setup_fastapi_loglensx(app, log_dir="logs", prefix="/internal/logs")
 ```
 
-### Custom Logger Configuration
+## API Reference
+
+When the dashboard is mounted at `/loglensx`, these routes are available:
+
+| Route | Description |
+| --- | --- |
+| `GET /loglensx/` | Dashboard UI |
+| `GET /loglensx/logs` | Log explorer UI |
+| `GET /loglensx/api/logs` | Filtered log entries as JSON |
+| `GET /loglensx/api/stats` | Summary statistics, level counts, top loggers, and error frequency |
+| `GET /loglensx/api/search` | Search log entries |
+| `GET /loglensx/api/files` | Log file metadata |
+
+Common query parameters for `/api/logs` and `/logs`:
+
+| Parameter | Example | Description |
+| --- | --- | --- |
+| `search` | `database` | Match text in log messages |
+| `level` | `ERROR` | Filter by log level |
+| `logger` | `app.api` | Match logger names |
+| `limit` | `100` | Maximum rows to return |
+
+Examples:
+
+```bash
+curl "http://127.0.0.1:5000/loglensx/api/logs?level=ERROR&limit=20"
+curl "http://127.0.0.1:5000/loglensx/api/stats"
+curl "http://127.0.0.1:5000/loglensx/api/search?query=timeout"
+```
+
+## Log Format
+
+The default parser supports log lines like this:
+
+```text
+[2024-01-15 10:30:45] [ERROR] [app.database] Connection timeout
+[2024-01-15 10:30:46] [WARNING] [app.cache] Cache miss
+[2024-01-15 10:30:47] [INFO] [app.api] GET /users - 200
+```
+
+Recommended Python logging format:
+
+```python
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler("logs/app.log"), logging.StreamHandler()],
+)
+```
+
+You can also provide a custom regex pattern:
 
 ```python
 from loglensx import LogParser
 
-# Use custom log directory
-parser = LogParser(log_dir="/var/log/myapp")
-
-# Use custom regex pattern
-custom_pattern = r'(?P<timestamp>.*?)\|(?P<level>\w+)\|(?P<message>.*)'
-parser = LogParser(log_dir="logs", pattern=custom_pattern)
+pattern = r"(?P<timestamp>.*?)\\|(?P<level>\\w+)\\|(?P<logger>.*?)\\|(?P<message>.*)"
+parser = LogParser(log_dir="logs", pattern=pattern)
 ```
 
-## Advanced Usage
+The pattern should use named groups where possible:
 
-### Filter Logs
+- `timestamp`
+- `level`
+- `logger`
+- `message`
+
+## Visualization JSON
+
+`ChartGenerator` returns Plotly figure JSON. You can save that JSON and render it in any page that loads Plotly.
+
+```python
+from pathlib import Path
+
+from loglensx import LogAnalyzer, LogParser
+from loglensx.visualizers import ChartGenerator
+
+parser = LogParser(log_dir="logs")
+analyzer = LogAnalyzer(parser)
+
+Path("visualizations").mkdir(exist_ok=True)
+Path("visualizations/level_distribution.json").write_text(
+    ChartGenerator.plotly_level_distribution(analyzer.get_level_statistics())
+)
+Path("visualizations/error_timeline.json").write_text(
+    ChartGenerator.plotly_error_timeline(analyzer.get_error_frequency())
+)
+Path("visualizations/top_loggers.json").write_text(
+    ChartGenerator.plotly_top_loggers(analyzer.get_top_loggers(limit=10))
+)
+```
+
+This repository includes a simple viewer at `visualizations/index.html`. Serve the project folder and open the viewer:
+
+```bash
+python -m http.server 8080
+```
+
+```text
+http://127.0.0.1:8080/visualizations/
+```
+
+## Core API
+
+### `LogParser`
+
+```python
+from loglensx import LogParser
+
+parser = LogParser(log_dir="logs")
+
+files = parser.get_log_files(limit=5)
+entries = parser.parse_all_logs()
+matches = parser.search_logs("timeout", limit=50)
+by_level = parser.parse_logs_by_level()
+```
+
+### `LogAnalyzer`
 
 ```python
 from loglensx import LogAnalyzer
 
 analyzer = LogAnalyzer(parser)
 
-# Filter by level
-errors = analyzer.filter_logs(level="ERROR", limit=50)
-
-# Filter by logger
-db_logs = analyzer.filter_logs(logger="database", limit=50)
-
-# Search term
-api_logs = analyzer.filter_logs(search_term="API", limit=50)
-```
-
-### Get Statistics
-
-```python
-# Log level distribution
+summary = analyzer.get_log_summary()
 level_stats = analyzer.get_level_statistics()
-# Output: {'ERROR': 5, 'WARNING': 12, 'INFO': 234, 'DEBUG': 1000}
-
-# Top loggers
 top_loggers = analyzer.get_top_loggers(limit=10)
-# Output: [('database', 450), ('api', 320), ('cache', 180), ...]
+error_frequency = analyzer.get_error_frequency(hours=24)
+recent_errors = analyzer.get_recent_errors(limit=10)
 
-# Error frequency
-error_freq = analyzer.get_error_frequency(hours=24)
-# Output: {'2024-01-15 10:00': 3, '2024-01-15 11:00': 1, ...}
+filtered = analyzer.filter_logs(
+    level="ERROR",
+    logger="database",
+    search_term="timeout",
+    limit=100,
+)
 ```
 
-### Generate Visualizations
+### `TableGenerator`
 
 ```python
-from loglensx.visualizers import ChartGenerator, TableGenerator
+from loglensx.visualizers import TableGenerator
 
-# Generate charts (returns JSON for Plotly)
-level_chart = ChartGenerator.plotly_level_distribution(level_stats)
-error_timeline = ChartGenerator.plotly_error_timeline(error_freq)
-top_loggers_chart = ChartGenerator.plotly_top_loggers(top_loggers)
-
-# Generate HTML tables
-html_table = TableGenerator.logs_to_html_table(errors, title="Recent Errors")
-```
-
-## Performance Considerations
-
-- **Large Log Files**: loglensx efficiently handles large log files
-- **Real-time Parsing**: Use `limit` parameter to control parsing scope
-- **Caching**: Implement caching for frequently accessed data in production
-
-## Troubleshooting
-
-### Logs Not Appearing
-
-1. Check log directory exists: `logs/`
-2. Verify log file naming: `log_file_YYYY-MM-DD.log`
-3. Check file permissions
-4. View server logs for parsing errors
-
-### Dashboard Not Loading
-
-1. Ensure FastAPI/Flask app is running
-2. Check URL prefix configuration
-3. Verify browser console for errors
-4. Check server logs for issues
-
-### Memory Issues with Large Logs
-
-Use the `limit` parameter to control how many files are parsed:
-
-```python
-parser.get_log_files(limit=7)  # Only parse last 7 days
-analyzer.get_log_summary()  # Uses limited logs
+html = TableGenerator.logs_to_html_table(recent_errors, title="Recent Errors")
 ```
 
 ## Examples
 
-See the [examples/](examples/) directory for complete working examples:
+Complete examples are available in the `examples/` directory:
 
-- `fastapi_example.py` - FastAPI integration with loglensx
-- `flask_example.py` - Flask integration with loglensx
-- `standalone_example.py` - Standalone usage without frameworks
+| File | Purpose |
+| --- | --- |
+| `examples/flask_example.py` | Flask app with dashboard routes |
+| `examples/fastapi_example.py` | FastAPI app with dashboard routes |
+| `examples/standalone_example.py` | Parser, analyzer, and visualization JSON workflow |
 
-## Contributing
+Run the Flask example:
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+```bash
+python examples/flask_example.py
+```
+
+Run the FastAPI example:
+
+```bash
+python examples/fastapi_example.py
+```
+
+Run the standalone example:
+
+```bash
+python examples/standalone_example.py
+```
+
+## CLI
+
+After installation, `loglensx` provides a small summary command that reads from the default `logs/` directory:
+
+```bash
+loglensx
+```
+
+It prints total logs, counts by level, unique loggers, log file count, and recent errors.
+
+## Project Structure
+
+```text
+loglensx/
+  core/
+    parser.py
+    analyzer.py
+  integrations/
+    fastapi_integration.py
+    flask_integration.py
+    _dashboard.py
+  visualizers/
+    charts.py
+    tables.py
+examples/
+tests/
+visualizations/
+```
+
+## Development
+
+Create a local environment and install development dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev,flask,fastapi]"
+```
+
+Run tests:
+
+```bash
+pytest
+```
+
+If `pytest-cov` is not installed in your environment, run tests without the configured coverage options:
+
+```bash
+pytest -q -o addopts=""
+```
+
+## Troubleshooting
+
+### Dashboard page does not open
+
+- Confirm the Flask or FastAPI server is running.
+- Use the correct prefix, for example `/loglensx/`.
+- Check that the framework extra is installed: `loglensx[flask]` or `loglensx[fastapi]`.
+
+### Logs are not visible
+
+- Confirm `log_dir` points to the directory where log files are written.
+- Confirm files have a `.log` extension.
+- Confirm your log format matches the default parser or pass a custom regex pattern.
+- Generate a test log entry and refresh the dashboard.
+
+### Visualization JSON opens as raw text
+
+The JSON files are data, not standalone charts. Use `visualizations/index.html` through a local server:
+
+```bash
+python -m http.server 8080
+```
+
+Then open `http://127.0.0.1:8080/visualizations/`.
+
+### Import fails when running examples directly
+
+Run examples from the repository root:
+
+```bash
+python examples/flask_example.py
+python examples/fastapi_example.py
+```
+
+For installed usage, install the package first:
+
+```bash
+pip install -e ".[flask,fastapi]"
+```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Support
 
-For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/faisalahmedbijoy/loglensx/issues).
+Open issues and feature requests on the project issue tracker:
 
----
-
-Made with ❤️ for Python developers
+https://github.com/faisalahmedbijoy/loglensx/issues
