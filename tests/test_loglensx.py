@@ -7,6 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from loglensx.core.parser import LogParser
 from loglensx.core.analyzer import LogAnalyzer
+from loglensx.integrations._dashboard import default_links, render_dashboard_page, render_logs_page
 from loglensx.visualizers.tables import TableGenerator
 
 
@@ -158,6 +159,49 @@ class TestTableGenerator:
         html = TableGenerator.logs_to_html_table(entries)
         assert "<details>" in html
         assert "api.log:7" in html
+
+
+class TestDashboardRendering:
+    """Test shared dashboard rendering used by Flask and FastAPI."""
+
+    def test_dashboard_page_contains_interactive_charts_and_table(self, temp_log_dir):
+        """Dashboard HTML should include Plotly targets and the enhanced table."""
+        parser = LogParser(log_dir=temp_log_dir)
+        analyzer = LogAnalyzer(parser)
+        links = default_links("/loglensx")
+
+        html = render_dashboard_page(
+            links=links,
+            summary=analyzer.get_log_summary(),
+            level_stats=analyzer.get_level_statistics(),
+            top_loggers=analyzer.get_top_loggers(),
+            error_frequency=analyzer.get_error_frequency(),
+            recent_errors=analyzer.get_recent_errors(),
+            log_dir=temp_log_dir,
+        )
+
+        assert "Log Intelligence" in html
+        assert "levelChart" in html
+        assert "loggersChart" in html
+        assert "window.LOGLENSX_DATA" in html
+        assert "data-log-table" in html
+
+    def test_logs_page_contains_sortable_table_controls(self, temp_log_dir):
+        """Log explorer HTML should render sortable columns and client-side controls."""
+        parser = LogParser(log_dir=temp_log_dir)
+        analyzer = LogAnalyzer(parser)
+
+        html = render_logs_page(
+            links=default_links("/loglensx"),
+            logs=analyzer.filter_logs(limit=10),
+            log_dir=temp_log_dir,
+            limit=10,
+        )
+
+        assert "Log Explorer" in html
+        assert "data-table-search" in html
+        assert 'data-sort="timestamp"' in html
+        assert "JSON Results" in html
 
 
 if __name__ == "__main__":

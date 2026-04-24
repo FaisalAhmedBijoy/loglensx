@@ -2,21 +2,54 @@
 Chart generation for log visualizations using Plotly.
 """
 
-from typing import Dict, List, Any
 import json as json_module
+from typing import Any, Dict, List
 
 # Chart constants
-CHART_HEIGHT = 400
-COLOR_ERROR = "#dc3545"
-COLOR_WARNING = "#ffc107"
-COLOR_INFO = "#17a2b8"
-COLOR_DEBUG = "#6c757d"
-COLOR_DEFAULT = "#007bff"
-COLOR_TRANSPARENT_ERROR = "rgba(220, 53, 69, 0.1)"
+CHART_HEIGHT = 420
+COLOR_ERROR = "#dc2626"
+COLOR_WARNING = "#d97706"
+COLOR_INFO = "#0284c7"
+COLOR_DEBUG = "#475569"
+COLOR_DEFAULT = "#2563eb"
+COLOR_SUCCESS = "#059669"
+COLOR_TRANSPARENT_ERROR = "rgba(220, 38, 38, 0.10)"
+GRID_COLOR = "#e5edf7"
+TEXT_COLOR = "#334155"
+
+LEVEL_COLORS = {
+    "ERROR": COLOR_ERROR,
+    "WARNING": COLOR_WARNING,
+    "INFO": COLOR_INFO,
+    "DEBUG": COLOR_DEBUG,
+}
 
 
 class ChartGenerator:
     """Generate interactive charts for log data."""
+
+    @staticmethod
+    def _level_colors(levels: List[str]) -> List[str]:
+        """Return colors for log levels in the supplied order."""
+        return [LEVEL_COLORS.get(level, COLOR_DEFAULT) for level in levels]
+
+    @staticmethod
+    def _plotly_layout(title: str, height: int = CHART_HEIGHT) -> Dict[str, Any]:
+        """Common Plotly layout for dashboard visualizations."""
+        return {
+            "title": {"text": title, "font": {"size": 16}},
+            "height": height,
+            "paper_bgcolor": "rgba(0,0,0,0)",
+            "plot_bgcolor": "#ffffff",
+            "font": {"family": "Inter, system-ui, sans-serif", "color": TEXT_COLOR},
+            "margin": {"t": 56, "r": 28, "b": 56, "l": 64},
+            "hoverlabel": {
+                "bgcolor": "#111827",
+                "bordercolor": "#111827",
+                "font": {"color": "#ffffff"},
+            },
+            "legend": {"orientation": "h", "y": 1.08, "x": 1, "xanchor": "right"},
+        }
 
     @staticmethod
     def level_distribution_chart(level_stats: Dict[str, int]) -> Dict[str, Any]:
@@ -31,20 +64,21 @@ class ChartGenerator:
                 "datasets": [
                     {
                         "data": counts,
-                        "backgroundColor": [
-                            COLOR_ERROR,
-                            COLOR_WARNING,
-                            COLOR_INFO,
-                            COLOR_DEBUG,
-                        ][:len(levels)],
+                        "backgroundColor": ChartGenerator._level_colors(levels),
+                        "borderColor": "#ffffff",
+                        "borderWidth": 2,
+                        "hoverOffset": 8,
                     }
                 ]
             },
             "options": {
                 "responsive": True,
+                "maintainAspectRatio": False,
+                "cutout": "62%",
                 "plugins": {
-                    "legend": {"position": "bottom"}
-                }
+                    "legend": {"position": "bottom"},
+                    "tooltip": {"enabled": True},
+                },
             }
         }
 
@@ -66,17 +100,21 @@ class ChartGenerator:
                         "backgroundColor": COLOR_TRANSPARENT_ERROR,
                         "tension": 0.4,
                         "fill": True,
+                        "pointRadius": 4,
+                        "pointHoverRadius": 7,
                     }
                 ]
             },
             "options": {
                 "responsive": True,
+                "maintainAspectRatio": False,
                 "plugins": {
                     "legend": {"display": True}
                 },
                 "scales": {
-                    "y": {"beginAtZero": True}
-                }
+                    "x": {"grid": {"color": GRID_COLOR}},
+                    "y": {"beginAtZero": True, "grid": {"color": GRID_COLOR}},
+                },
             }
         }
 
@@ -94,19 +132,22 @@ class ChartGenerator:
                     {
                         "label": "Log Count",
                         "data": counts,
-                        "backgroundColor": "#007bff",
+                        "backgroundColor": COLOR_DEFAULT,
+                        "borderRadius": 6,
                     }
                 ]
             },
             "options": {
                 "responsive": True,
+                "maintainAspectRatio": False,
                 "indexAxis": "y",
                 "plugins": {
                     "legend": {"display": False}
                 },
                 "scales": {
-                    "x": {"beginAtZero": True}
-                }
+                    "x": {"beginAtZero": True, "grid": {"color": GRID_COLOR}},
+                    "y": {"grid": {"display": False}},
+                },
             }
         }
 
@@ -116,28 +157,26 @@ class ChartGenerator:
         levels = list(level_stats.keys())
         counts = list(level_stats.values())
 
-        color_map = {
-            "ERROR": COLOR_ERROR,
-            "WARNING": COLOR_WARNING,
-            "INFO": COLOR_INFO,
-            "DEBUG": COLOR_DEBUG,
-        }
-
-        colors = [color_map.get(level, COLOR_DEFAULT) for level in levels]
-
         figure = {
             "data": [
                 {
                     "labels": levels,
                     "values": counts,
                     "type": "pie",
-                    "marker": {"colors": colors},
+                    "hole": 0.62,
+                    "sort": False,
+                    "marker": {
+                        "colors": ChartGenerator._level_colors(levels),
+                        "line": {"color": "#ffffff", "width": 3},
+                    },
+                    "textinfo": "label+percent",
+                    "hovertemplate": "<b>%{label}</b><br>%{value} entries<br>%{percent}<extra></extra>",
                 }
             ],
             "layout": {
-                "title": "Log Level Distribution",
-                "height": CHART_HEIGHT,
-            }
+                **ChartGenerator._plotly_layout("Log Level Distribution"),
+                "margin": {"t": 46, "r": 16, "b": 20, "l": 16},
+            },
         }
 
         return json_module.dumps(figure)
@@ -155,16 +194,28 @@ class ChartGenerator:
                     "y": counts,
                     "type": "scatter",
                     "mode": "lines+markers",
-                    "line": {"color": COLOR_ERROR},
+                    "line": {
+                        "color": COLOR_ERROR,
+                        "width": 3,
+                        "shape": "spline",
+                        "smoothing": 1.1,
+                    },
+                    "marker": {
+                        "size": 7,
+                        "color": "#ffffff",
+                        "line": {"color": COLOR_ERROR, "width": 2},
+                    },
+                    "fill": "tozeroy",
+                    "fillcolor": COLOR_TRANSPARENT_ERROR,
                     "name": "Errors",
+                    "hovertemplate": "<b>%{x}</b><br>%{y} errors<extra></extra>",
                 }
             ],
             "layout": {
-                "title": "Error Frequency Over Time",
-                "xaxis": {"title": "Time"},
-                "yaxis": {"title": "Error Count"},
-                "height": CHART_HEIGHT,
-            }
+                **ChartGenerator._plotly_layout("Error Frequency Over Time"),
+                "xaxis": {"title": "", "gridcolor": GRID_COLOR},
+                "yaxis": {"title": "Error Count", "rangemode": "tozero", "gridcolor": GRID_COLOR},
+            },
         }
 
         return json_module.dumps(figure)
@@ -181,15 +232,21 @@ class ChartGenerator:
                     "x": counts,
                     "y": loggers,
                     "type": "bar",
-                    "marker": {"color": COLOR_DEFAULT},
+                    "marker": {
+                        "color": counts,
+                        "colorscale": [[0, "#bfdbfe"], [0.55, "#38bdf8"], [1, COLOR_DEFAULT]],
+                        "line": {"color": "#ffffff", "width": 1},
+                    },
                     "orientation": "h",
+                    "hovertemplate": "<b>%{y}</b><br>%{x} entries<extra></extra>",
                 }
             ],
             "layout": {
-                "title": "Top 10 Loggers by Log Count",
-                "xaxis": {"title": "Log Count"},
-                "height": CHART_HEIGHT,
-            }
+                **ChartGenerator._plotly_layout("Top Loggers by Log Count"),
+                "xaxis": {"title": "Log Count", "rangemode": "tozero", "gridcolor": GRID_COLOR},
+                "yaxis": {"title": "", "automargin": True},
+                "showlegend": False,
+            },
         }
 
         return json_module.dumps(figure)
