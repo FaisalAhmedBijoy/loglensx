@@ -1,241 +1,259 @@
-# Quick Start Guide for loglensx
+# loglensx Quick Start
 
-## Installation
+This guide gets `loglensx` running in a Flask app, a FastAPI app, or a standalone script. For full package documentation, see `README.md`.
 
-### Basic Installation
+## Install
+
+Core package:
+
 ```bash
 pip install loglensx
 ```
 
-### With FastAPI
+With Flask support:
+
 ```bash
-pip install loglensx[fastapi]
+pip install "loglensx[flask]"
 ```
 
-### With Flask
+With FastAPI support:
+
 ```bash
-pip install loglensx[flask]
+pip install "loglensx[fastapi]"
 ```
 
-### For Development
+For local development from this repository:
+
 ```bash
-pip install loglensx[dev]
+pip install -e ".[dev,flask,fastapi]"
 ```
 
-## 5-Minute Tutorial
+## Expected Log Format
 
-### 1. FastAPI Setup (3 minutes)
+The default parser works with standard Python logging output like this:
+
+```text
+[2024-01-15 10:30:45] [ERROR] [app.database] Connection timeout
+[2024-01-15 10:30:46] [WARNING] [app.cache] Cache miss
+[2024-01-15 10:30:47] [INFO] [app.api] GET /users - 200
+```
+
+Use this formatter in your app:
 
 ```python
-# main.py
-from fastapi import FastAPI
-from loglensx import setup_fastapi_loglensx
 import logging
-from datetime import datetime
 import os
+from datetime import datetime
 
-app = FastAPI()
-
-# Setup logging
-log_dir = "logs"
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, f"log_file_{datetime.now().strftime('%Y-%m-%d')}.log")
+os.makedirs("logs", exist_ok=True)
+log_file = f"logs/log_file_{datetime.now().strftime('%Y-%m-%d')}.log"
 
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
+    level=logging.INFO,
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
 )
-
-logger = logging.getLogger(__name__)
-
-# Setup loglensx
-setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
-
-@app.get("/")
-def read_root():
-    logger.info("Root endpoint called")
-    return {"status": "ok"}
-
-@app.get("/error-test")
-def test():
-    logger.error("This is a test error")
-    return {"status": "error logged"}
 ```
 
-Run:
-```bash
-pip install uvicorn
-uvicorn main:app --reload
-```
+## Flask in 3 Minutes
 
-Visit:
-- App: http://localhost:8000/
-- loglensx: http://localhost:8000/loglensx/
-
-### 2. Flask Setup (3 minutes)
+Create `app.py`:
 
 ```python
-# app.py
+import logging
+import os
+from datetime import datetime
+
 from flask import Flask, jsonify
 from loglensx import setup_flask_loglensx
-import logging
-from datetime import datetime
-import os
 
 app = Flask(__name__)
 
-# Setup logging
-log_dir = "logs"
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, f"log_file_{datetime.now().strftime('%Y-%m-%d')}.log")
+os.makedirs("logs", exist_ok=True)
+log_file = f"logs/log_file_{datetime.now().strftime('%Y-%m-%d')}.log"
 
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
+    level=logging.INFO,
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
 )
 
 logger = logging.getLogger(__name__)
 
-# Setup loglensx
 setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
+
 
 @app.route("/")
 def home():
     logger.info("Home page accessed")
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok", "dashboard": "/loglensx/"})
+
 
 @app.route("/error-test")
-def test():
-    logger.error("This is a test error")
+def error_test():
+    logger.error("Example error from Flask")
     return jsonify({"status": "error logged"})
+
+
+if __name__ == "__main__":
+    app.run(port=5000)
 ```
 
 Run:
+
 ```bash
 python app.py
 ```
 
-Visit:
-- App: http://localhost:5000/
-- loglensx: http://localhost:5000/loglensx/
+Open:
 
-### 3. Standalone Usage (2 minutes)
+```text
+http://127.0.0.1:5000/loglensx/
+```
+
+## FastAPI in 3 Minutes
+
+Create `main.py`:
 
 ```python
-from loglensx import LogParser, LogAnalyzer
+import logging
+import os
+from datetime import datetime
 
-# Parse logs
+from fastapi import FastAPI
+from loglensx import setup_fastapi_loglensx
+
+app = FastAPI()
+
+os.makedirs("logs", exist_ok=True)
+log_file = f"logs/log_file_{datetime.now().strftime('%Y-%m-%d')}.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
+)
+
+logger = logging.getLogger(__name__)
+
+setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
+
+
+@app.get("/")
+def home():
+    logger.info("Root endpoint accessed")
+    return {"status": "ok", "dashboard": "/loglensx/"}
+
+
+@app.get("/error-test")
+def error_test():
+    logger.error("Example error from FastAPI")
+    return {"status": "error logged"}
+```
+
+Run:
+
+```bash
+uvicorn main:app --reload
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/loglensx/
+```
+
+## Standalone Usage
+
+Use `LogParser` and `LogAnalyzer` without a web framework:
+
+```python
+from loglensx import LogAnalyzer, LogParser
+
 parser = LogParser(log_dir="logs")
 analyzer = LogAnalyzer(parser)
 
-# Get summary
 summary = analyzer.get_log_summary()
-print(f"Total logs: {summary['total_logs']}")
-print(f"Errors: {summary['error_count']}")
+print("Total logs:", summary["total_logs"])
+print("Errors:", summary["error_count"])
 
-# Get recent errors
-errors = analyzer.get_recent_errors(limit=5)
-for error in errors:
-    print(f"Error: {error['message']}")
+for entry in analyzer.get_recent_errors(limit=5):
+    print(entry["timestamp"], entry["message"])
 ```
 
 ## Dashboard Features
 
-### Main View
-- **Statistics Cards** - Total logs, errors, warnings, etc.
-- **Level Distribution** - Pie chart showing log level breakdown
-- **Error Timeline** - Line chart of errors over time
-- **Top Loggers** - Bar chart of most active loggers
-- **Recent Errors** - Table of latest error entries
+The mounted dashboard includes:
 
-### Search Features
-- Search by keyword
-- Filter by log level (ERROR, WARNING, INFO, DEBUG)
-- View all available log files
+- Summary metrics for total logs, errors, warnings, loggers, files, and stability
+- Log level distribution chart
+- Error frequency timeline
+- Top loggers chart
+- Recent errors table with expandable messages
+- Log explorer with search, level, logger, and row-limit filters
+- JSON APIs for logs, statistics, search, and file metadata
 
-## API Endpoints
+## Useful Endpoints
+
+These examples assume the dashboard is mounted at `/loglensx`.
 
 ```bash
-# Get dashboard
-curl http://localhost:8000/loglensx/
-
-# Get logs (with filters)
-curl http://localhost:8000/loglensx/api/logs?level=ERROR&limit=10
-curl http://localhost:8000/loglensx/api/logs?search=database
-
-# Get statistics
-curl http://localhost:8000/loglensx/api/stats
-
-# Search logs
-curl http://localhost:8000/loglensx/api/search?q=error
-
-# List log files
-curl http://localhost:8000/loglensx/api/files
+curl "http://127.0.0.1:5000/loglensx/api/logs?level=ERROR&limit=20"
+curl "http://127.0.0.1:5000/loglensx/api/logs?search=database"
+curl "http://127.0.0.1:5000/loglensx/api/stats"
+curl "http://127.0.0.1:5000/loglensx/api/search?query=timeout"
+curl "http://127.0.0.1:5000/loglensx/api/files"
 ```
 
-## Log Format
+## Visualization JSON Viewer
 
-loglensx expects logs in this format:
+The standalone example can generate Plotly figure JSON files in `visualizations/`. To view them as charts, serve the repository root:
 
-```
-[2024-01-15 10:30:45] [ERROR] [app.module] Error message here
-[2024-01-15 10:30:46] [WARNING] [app.module] Warning message here
-[2024-01-15 10:30:47] [INFO] [app.module] Info message here
+```bash
+python -m http.server 8080
 ```
 
-Your Python logging configuration:
+Then open:
 
-```python
-import logging
-
-handler = logging.FileHandler('logs/log_file_{}.log'.format(
-    datetime.now().strftime('%Y-%m-%d')
-))
-formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+```text
+http://127.0.0.1:8080/visualizations/
 ```
 
-## Next Steps
+## Run Included Examples
 
-1. **Explore Examples** - See `examples/` directory for complete working examples
-2. **Read Documentation** - Check `README.md` for detailed documentation
-3. **Run Tests** - `pytest tests/` to verify installation
-4. **Customize** - Adjust log directory, URL prefix, and styling to your needs
+From the repository root:
+
+```bash
+python examples/flask_example.py
+python examples/fastapi_example.py
+python examples/standalone_example.py
+```
 
 ## Troubleshooting
 
-### Logs not appearing?
-1. Check `logs/` directory exists
-2. Verify logs are being written
-3. Check file format matches expected pattern
-4. Look at server console for parsing errors
+### Dashboard does not load
 
-### Dashboard won't load?
-1. Verify app is running (FastAPI/Flask)
-2. Check browser console for errors
-3. Ensure prefix matches your configuration
-4. Check firewall/network settings
+- Confirm the app server is running.
+- Confirm the URL includes the configured prefix, for example `/loglensx/`.
+- Install the correct framework extra: `loglensx[flask]` or `loglensx[fastapi]`.
 
-### Getting help?
-- Check README.md for detailed documentation
-- Look at examples/ for working code
-- Review PUBLISHING.md for deployment info
-- Check test_loglensx.py for API usage examples
+### Logs do not appear
 
-## What's Next?
+- Confirm the log directory exists.
+- Confirm log files use the `.log` extension.
+- Confirm your log format matches the default parser or configure a custom pattern.
+- Generate a new log entry and refresh the dashboard.
 
-- Deploy your app with loglensx enabled
-- Monitor your application logs in real-time
-- Share insights with your team using the dashboard
-- Integrate loglensx into your CI/CD pipeline
+### Tests fail because of coverage options
 
-Happy logging! 🎉
+Install development dependencies:
+
+```bash
+pip install -e ".[dev,flask,fastapi]"
+```
+
+Or run without configured coverage options:
+
+```bash
+pytest -q -o addopts=""
+```

@@ -1,207 +1,213 @@
-# loglensx - Publication Checklist ✅
+# Publication Checklist
 
-## Pre-Publication Verification
+Use this checklist before publishing a new `loglensx` release.
 
-- [ ] All Python files syntax is valid
-- [ ] README.md is properly formatted
-- [ ] License file included (MIT)
-- [ ] Version consistent in setup.py, pyproject.toml, __init__.py
-- [ ] CHANGELOG.md updated with v1.0.0
-- [ ] Dependencies listed in pyproject.toml
-- [ ] Examples work and are documented
-- [ ] Tests can be run with pytest
+## Release Metadata
 
-## Setup PyPI Account
+- [ ] Choose the target version: `X.Y.Z`.
+- [ ] Update `pyproject.toml`.
+- [ ] Update `setup.py`.
+- [ ] Update `loglensx/__init__.py`.
+- [ ] Update `CHANGELOG.md`.
+- [ ] Confirm all version values match.
+- [ ] Confirm package name is consistently `loglensx`.
 
-- [ ] Create account at https://pypi.org
-- [ ] Verify email
-- [ ] Create API token
-- [ ] Save token securely
-
-## Build the Package
+Version check commands:
 
 ```bash
-# Install build tools
-pip install --upgrade build twine
+rg -n "__version__|version=|version =" loglensx/__init__.py setup.py pyproject.toml
+python -c "import loglensx; print(loglensx.__version__)"
+```
 
-# Clean previous builds
+## Documentation
+
+- [ ] `README.md` describes the current dashboard, API routes, and examples.
+- [ ] `QUICKSTART.md` is runnable and concise.
+- [ ] `PROJECT_SUMMARY.md` matches current architecture.
+- [ ] `PUBLISHING.md` has the current release process.
+- [ ] `DELIVERABLES.md` matches shipped files and features.
+- [ ] `CHANGELOG.md` includes release notes for `X.Y.Z`.
+- [ ] Documentation avoids stale version numbers.
+
+## Local Validation
+
+- [ ] Install local package with all extras.
+
+```bash
+python -m pip install -e ".[dev,flask,fastapi]"
+```
+
+- [ ] Run syntax checks.
+
+```bash
+python -m compileall loglensx examples tests
+```
+
+- [ ] Run tests.
+
+```bash
+pytest
+```
+
+If coverage tools are not installed:
+
+```bash
+pytest -q -o addopts=""
+```
+
+- [ ] Run or smoke-test examples.
+
+```bash
+python examples/flask_example.py
+python examples/fastapi_example.py
+python examples/standalone_example.py
+```
+
+- [ ] Confirm visualization viewer instructions work.
+
+```bash
+python -m http.server 8080
+```
+
+Open:
+
+```text
+http://127.0.0.1:8080/visualizations/
+```
+
+## Clean Build
+
+- [ ] Remove old build artifacts.
+
+```bash
 rm -rf build dist *.egg-info
+```
 
-# Build the package
+- [ ] Build the package.
+
+```bash
 python -m build
 ```
 
-- [ ] Build completes without errors
-- [ ] `dist/` folder contains .tar.gz and .whl files
-- [ ] File sizes seem reasonable
+- [ ] Confirm `dist/` contains exactly the new release files.
+- [ ] Validate distributions.
 
-## Optional: Test on TestPyPI First
-
-Create `~/.pypirc`:
-```ini
-[testpypi]
-repository = https://test.pypi.org/legacy/
-username = __token__
-password = pypi-...
-```
-
-```bash
-# Upload to TestPyPI
-twine upload --repository testpypi dist/*
-
-# Install from TestPyPI to verify
-pip install --index-url https://test.pypi.org/simple/ loglensx
-
-# Test basic imports
-python -c "from loglensx import LogParser, LogAnalyzer; print('Success!')"
-```
-
-- [ ] TestPyPI upload succeeds
-- [ ] Package installs from TestPyPI
-- [ ] Basic imports work
-- [ ] Uninstall test package: `pip uninstall loglensx`
-
-## Publish to PyPI
-
-Setup `~/.pypirc` for PyPI:
-```ini
-[pypi]
-repository = https://upload.pypi.org/legacy/
-username = __token__
-password = pypi-...
-```
-
-```bash
-# Upload to PyPI
-twine upload dist/*
-```
-
-- [ ] Upload completes successfully
-- [ ] No warnings or errors
-- [ ] All files uploaded
-
-## Verify Publication
-
-- [ ] Visit https://pypi.org/project/loglensx/
-- [ ] Package page displays correctly
-- [ ] README renders properly
-- [ ] Version shows as 1.0.0
-- [ ] Keywords and classifiers display
-- [ ] Download links are available
-
-## Test Installation
-
-```bash
-pip install loglensx
-```
-
-- [ ] Package installs without errors
-- [ ] Dependencies installed automatically
-- [ ] Can import: `from loglensx import LogParser`
-- [ ] Can import: `from loglensx import setup_fastapi_loglensx`
-- [ ] Can import: `from loglensx import setup_flask_loglensx`
-
-## Optional: Create GitHub Release
-
-```bash
-# Tag the release
-git tag v1.0.0
-git push origin v1.0.0
-
-# Create release notes
-# - Include CHANGELOG content
-# - Link to PyPI package
-# - Include installation instructions
-```
-
-- [ ] Git tag created and pushed
-- [ ] GitHub release created
-- [ ] Release notes include link to PyPI
-
-## Post-Publication Tasks
-
-- [ ] Update project website (if exists)
-- [ ] Announce on social media
-- [ ] Add badge to README: `[![PyPI version](https://badge.fury.io/py/loglensx.svg)](https://badge.fury.io/py/loglensx)`
-- [ ] Monitor PyPI download statistics
-- [ ] Watch for issues and pull requests
-- [ ] Plan next version features
-
-## Maintenance Tasks
-
-For future versions:
-
-1. **Before each release:**
-   - Update version numbers (3 places)
-   - Update CHANGELOG.md
-   - Run tests: `pytest tests/`
-   - Clean: `rm -rf build dist *.egg-info`
-   - Build: `python -m build`
-
-2. **After each release:**
-   - Create git tag: `git tag vX.Y.Z`
-   - Push tag: `git push origin vX.Y.Z`
-   - Create GitHub release with notes
-   - Monitor stats on PyPI
-
-## Troubleshooting
-
-### "Invalid distribution" error
-- Verify setup.py syntax: `python setup.py check`
-- Check pyproject.toml is valid TOML
-- Ensure all required fields present
-
-### "File already exists" error
-- Version already exists on PyPI
-- Use new version number
-- Or delete file from PyPI web UI (if needed)
-
-### "Authorization failed"
-- Verify PyPI token is correct
-- Check ~/.pypirc file syntax
-- Regenerate token if needed
-
-### "README not rendering"
 ```bash
 twine check dist/*
 ```
-- Check README.md markdown syntax
-- Ensure no special characters causing issues
 
-## Success Indicators ✨
+## TestPyPI
 
-- ✅ Package appears on PyPI.org
-- ✅ Users can install with `pip install loglensx`
-- ✅ Users can import all modules without errors
-- ✅ Dashboard works with FastAPI/Flask
-- ✅ Examples run successfully
-- ✅ Tests pass
-
-## Quick Publication Command
+- [ ] Upload to TestPyPI.
 
 ```bash
-# One-liner publication flow
-rm -rf build dist *.egg-info && python -m build && twine upload dist/*
+twine upload --repository testpypi dist/*
 ```
 
-## Documentation for Users
+- [ ] Install in a clean environment.
 
-After publishing, provide these links:
+```bash
+python -m venv /tmp/loglensx-test
+source /tmp/loglensx-test/bin/activate
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ "loglensx[flask,fastapi]"
+python -c "from loglensx import LogParser, LogAnalyzer; print('core imports ok')"
+python -c "from loglensx import setup_flask_loglensx, setup_fastapi_loglensx; print('integration imports ok')"
+deactivate
+```
 
-- **Package Page:** https://pypi.org/project/loglensx/
-- **GitHub (if exists):** https://github.com/yourusername/loglensx
-- **Installation:** `pip install loglensx` or `pip install loglensx[fastapi]`
-- **Quick Start:** See QUICKSTART.md or README.md
-- **Examples:** See examples/ directory
+- [ ] Confirm no unexpected dependency failures.
 
----
+## PyPI Publication
 
-## Final Notes
+- [ ] Upload to PyPI.
 
-✅ **loglensx is ready for publication!**
+```bash
+twine upload dist/*
+```
 
-All code is complete, tested, documented, and packaged for PyPI.
+- [ ] Visit the package page.
 
-Follow this checklist to publish successfully.
+```text
+https://pypi.org/project/loglensx/
+```
 
-Good luck! 🚀
+- [ ] Confirm the README renders correctly.
+- [ ] Confirm the version is correct.
+- [ ] Confirm wheel and source distribution are available.
+
+## Installation Verification
+
+Test from PyPI in a clean environment:
+
+```bash
+python -m venv /tmp/loglensx-pypi
+source /tmp/loglensx-pypi/bin/activate
+pip install loglensx
+python -c "from loglensx import LogParser, LogAnalyzer; print('core ok')"
+pip install "loglensx[flask]"
+python -c "from loglensx import setup_flask_loglensx; print('flask ok')"
+pip install "loglensx[fastapi]"
+python -c "from loglensx import setup_fastapi_loglensx; print('fastapi ok')"
+deactivate
+```
+
+## Git Release
+
+- [ ] Commit release changes.
+
+```bash
+git add pyproject.toml setup.py loglensx/__init__.py CHANGELOG.md
+git commit -m "chore: release X.Y.Z"
+```
+
+- [ ] Tag release.
+
+```bash
+git tag -a vX.Y.Z -m "Release X.Y.Z"
+git push origin main
+git push origin vX.Y.Z
+```
+
+- [ ] Create GitHub release notes from `CHANGELOG.md`.
+
+## Post-Release
+
+- [ ] Confirm package installation in a new shell.
+- [ ] Confirm examples still run from the source checkout.
+- [ ] Monitor PyPI package page for issues.
+- [ ] Watch GitHub issues.
+- [ ] Start a new `Unreleased` section in `CHANGELOG.md` if needed.
+
+## Failure Recovery
+
+### Upload says file already exists
+
+Do not try to replace files on PyPI. Bump the version, rebuild, and upload again.
+
+### README rendering fails
+
+Run:
+
+```bash
+twine check dist/*
+```
+
+Fix the reported Markdown or metadata issue.
+
+### Framework import fails
+
+Confirm optional extras are installed:
+
+```bash
+pip install "loglensx[flask]"
+pip install "loglensx[fastapi]"
+```
+
+### Tests fail due to coverage plugin
+
+Install dev dependencies or disable configured addopts:
+
+```bash
+pip install -e ".[dev]"
+pytest -q -o addopts=""
+```

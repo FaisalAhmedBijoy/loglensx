@@ -1,178 +1,203 @@
-# Publishing Guide for loglensx
+# Publishing Guide
+
+This guide describes how to build, verify, and publish `loglensx` to PyPI.
 
 ## Prerequisites
 
-1. Python 3.8 or higher installed
-2. PyPI account (create at https://pypi.org)
-3. TestPyPI account (optional but recommended, create at https://test.pypi.org)
+- Python 3.8 or newer.
+- A PyPI account: https://pypi.org
+- A TestPyPI account for release rehearsal: https://test.pypi.org
+- API tokens for PyPI and TestPyPI.
+- A clean working tree before building a release.
 
-## Step 1: Install Build Tools
+Install build tools:
 
 ```bash
-pip install --upgrade build twine
+python -m pip install --upgrade build twine
 ```
 
-## Step 2: Verify Project Structure
+For full local checks, install development extras:
 
-Ensure these files exist:
-- `setup.py`
-- `pyproject.toml`
-- `README.md`
-- `LICENSE`
-- `CHANGELOG.md`
-- `MANIFEST.in`
+```bash
+python -m pip install -e ".[dev,flask,fastapi]"
+```
 
-## Step 3: Test Build (Optional but Recommended)
+## Version Checklist
+
+Before each release, choose the target version, for example `1.0.3`, and update every version source:
+
+| File | Field |
+| --- | --- |
+| `pyproject.toml` | `project.version` |
+| `setup.py` | `version=` |
+| `loglensx/__init__.py` | `__version__` |
+| `CHANGELOG.md` | Release heading and notes |
+
+Verify with:
+
+```bash
+python -c "import loglensx; print(loglensx.__version__)"
+python -m pip show loglensx
+```
+
+If the installed package is stale during local testing, reinstall it:
+
+```bash
+python -m pip install -e ".[dev,flask,fastapi]"
+```
+
+## Pre-Build Validation
+
+Run syntax checks:
+
+```bash
+python -m compileall loglensx examples tests
+```
+
+Run tests:
+
+```bash
+pytest
+```
+
+If coverage tooling is not installed:
+
+```bash
+pytest -q -o addopts=""
+```
+
+Smoke-test examples when integration code changed:
+
+```bash
+python examples/flask_example.py
+python examples/fastapi_example.py
+python examples/standalone_example.py
+```
+
+## Clean Old Build Artifacts
+
+```bash
+rm -rf build dist *.egg-info
+```
+
+## Build
 
 ```bash
 python -m build
 ```
 
-This creates `dist/` folder with `.tar.gz` and `.whl` files.
+Expected output:
 
-## Step 4: Test on TestPyPI (Optional)
-
-Create `~/.pypirc`:
-
-```ini
-[distutils]
-index-servers =
-    testpypi
-    pypi
-
-[testpypi]
-repository = https://test.pypi.org/legacy/
-username = __token__
-password = pypi-...  # Your test PyPI token
-
-[pypi]
-repository = https://upload.pypi.org/legacy/
-username = __token__
-password = pypi-...  # Your PyPI token
+```text
+dist/loglensx-X.Y.Z.tar.gz
+dist/loglensx-X.Y.Z-py3-none-any.whl
 ```
 
-Test upload:
+Validate the generated distributions:
+
+```bash
+twine check dist/*
+```
+
+## TestPyPI Rehearsal
+
+Upload to TestPyPI:
 
 ```bash
 twine upload --repository testpypi dist/*
 ```
 
-Test installation:
+Install from TestPyPI in a clean environment:
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ loglensx
+python -m venv /tmp/loglensx-test
+source /tmp/loglensx-test/bin/activate
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ "loglensx[flask,fastapi]"
+python -c "from loglensx import LogParser, LogAnalyzer; print('import ok')"
+deactivate
 ```
 
-## Step 5: Update Version
+The `--extra-index-url` flag lets pip resolve dependencies from PyPI while installing `loglensx` from TestPyPI.
 
-Edit version in:
-- `loglensx/__init__.py`
-- `setup.py`
-- `pyproject.toml`
+## Publish to PyPI
 
-Add entry to `CHANGELOG.md`
-
-## Step 6: Publish to PyPI
+Upload the verified distribution:
 
 ```bash
-# Remove old builds
-rm -rf build dist *.egg-info
-
-# Build
-python -m build
-
-# Upload
 twine upload dist/*
 ```
 
-Enter your PyPI credentials when prompted.
+Verify the project page:
 
-## Step 7: Verify Publication
-
-Visit: https://pypi.org/project/loglensx/
-
-## Step 8: Tag Release (Git)
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
+```text
+https://pypi.org/project/loglensx/
 ```
 
-## Installation After Publishing
-
-Users can now install with:
+Install from PyPI in a clean environment:
 
 ```bash
-pip install loglensx
-pip install loglensx[fastapi]
-pip install loglensx[flask]
-pip install loglensx[dev]
+python -m venv /tmp/loglensx-pypi-test
+source /tmp/loglensx-pypi-test/bin/activate
+pip install "loglensx[flask,fastapi]"
+python -c "from loglensx import setup_flask_loglensx, setup_fastapi_loglensx; print('imports ok')"
+deactivate
 ```
 
-## Troubleshooting
+## Git Tag and Release
 
-### "Invalid distribution" error
+```bash
+git status --short
+git add pyproject.toml setup.py loglensx/__init__.py CHANGELOG.md
+git commit -m "chore: release X.Y.Z"
+git tag -a vX.Y.Z -m "Release X.Y.Z"
+git push origin main
+git push origin vX.Y.Z
+```
 
-Verify `setup.py`, `pyproject.toml` syntax and all required fields.
+Create a GitHub release using the matching `CHANGELOG.md` notes.
 
-### "File already exists" error
+## Post-Release Checks
 
-Delete the file from PyPI at https://pypi.org/project/loglensx/
+- Confirm `pip install loglensx` works.
+- Confirm `pip install "loglensx[flask]"` works.
+- Confirm `pip install "loglensx[fastapi]"` works.
+- Confirm the PyPI README renders correctly.
+- Confirm examples in the source checkout still run.
+- Confirm `CHANGELOG.md` has an empty or updated `Unreleased` section for future work.
 
-or use a new version number.
+## Common Problems
 
-### Long description not rendering
+### File already exists
 
-Check `README.md` format:
+PyPI does not allow replacing an uploaded distribution. Bump the version and rebuild.
+
+### README does not render
+
+Run:
+
 ```bash
 twine check dist/*
 ```
 
-## Documentation
+Fix Markdown or metadata warnings before upload.
 
-After publishing, update documentation:
-1. Update README with installation instructions
-2. Create GitHub releases with CHANGELOG
-3. Setup ReadTheDocs if needed
-4. Add badges to README
+### Authorization failed
 
-## Maintenance
+- Confirm the API token belongs to the correct PyPI project or account.
+- Confirm `~/.pypirc` points to the correct repository.
+- Try passing the repository explicitly: `twine upload --repository pypi dist/*`.
 
-- Monitor PyPI download stats
-- Respond to issues
-- Maintain version compatibility
-- Keep CHANGELOG updated
+### TestPyPI dependencies fail to resolve
 
----
-## Release
+Use PyPI as an extra index:
 
-Update the configuration
 ```bash
-- pyproject.toml - version = "1.0.1"
-- setup.py - version="1.0.1"
-- __init__.py - version = "1.0.1"
-- CHANGELOG.md - Added release notes for v1.0.1 with bug fixes
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ loglensx
 ```
-Publish 
-```bash
-# 1. Commit the version bump
-git add .
-git commit -m "chore: bump version to 1.0.1"
 
-# 2. Create a git tag
-git tag -a v1.0.1 -m "Release version 1.0.1"
+## Useful Links
 
-# 3. Build the distribution
-python3 -m build
-
-# 4. Validate the package
-twine check dist/loglensx-1.0.1*
-
-# 5. Upload to PyPI
-twine upload dist/loglensx-1.0.1*
-
-# 6. Push to GitHub
-git push origin main
-git push origin v1.0.1
-```
-For more info: https://packaging.python.org/
+- Python packaging guide: https://packaging.python.org/
+- PyPI: https://pypi.org/
+- TestPyPI: https://test.pypi.org/
+- Twine: https://twine.readthedocs.io/
