@@ -27,8 +27,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Setup LogLens
-setup_flask_loglensx(app, log_dir="logs", prefix="/loglens")
+# Setup LogLensx
+setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
 
 
 @app.route("/")
@@ -37,7 +37,7 @@ def home():
     logger.info("Home page accessed")
     return jsonify({
         "message": "Welcome to loglensx Flask Example",
-        "logs_url": "/loglens/"
+        "logs_url": "/loglensx/"
     })
 
 
@@ -79,7 +79,7 @@ def test_error():
     logger.warning("This is a test warning message")
     logger.info("This is a test info message")
     logger.debug("This is a test debug message")
-    return jsonify({"message": "Check /loglens/ to see the logged messages"})
+    return jsonify({"message": "Check /loglensx/ to see the logged messages"})
 
 
 @app.errorhandler(404)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     print("loglensx Flask Example")
     print("="*60)
     print("Main app:  http://localhost:5000/")
-    print("LogLens:   http://localhost:5000/loglens/")
+    print("LogLensx:   http://localhost:5000/loglensx/")
     print("="*60 + "\n")
     
     app.run(debug=True, port=5000)

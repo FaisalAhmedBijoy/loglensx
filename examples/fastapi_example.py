@@ -36,7 +36,7 @@ setup_fastapi_loglensx(app, log_dir="logs", prefix="/loglensx")
 def read_root():
     """Root endpoint."""
     logger.info("Root endpoint accessed")
-    return {"message": "Welcome to loglensx FastAPI Example", "logs_url": "/loglens/"}
+    return {"message": "Welcome to loglensx FastAPI Example", "logs_url": "/loglensx/"}
 
 
 @app.get("/api/items/{item_id}")
@@ -76,7 +76,7 @@ def test_error():
     """Endpoint to test error logging."""
     logger.error("This is a test error message")
     logger.warning("This is a test warning message")
-    return {"message": "Check /loglens/ to see the logged error and warning"}
+    return {"message": "Check /loglensx/ to see the logged error and warning"}
 
 
 if __name__ == "__main__":
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     print("loglensx FastAPI Example")
     print("="*60)
     print("Main app:  http://localhost:8000/")
-    print("LogLens:   http://localhost:8000/loglens/")
+    print("LogLensx:   http://localhost:8000/loglensx/")
     print("API Docs:  http://localhost:8000/docs")
     print("="*60 + "\n")
     
