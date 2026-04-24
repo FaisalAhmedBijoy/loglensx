@@ -2,14 +2,24 @@
 FastAPI example showing loglensx integration.
 """
 
+import logging
+import os
+import sys
+from datetime import datetime
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-import logging
-from datetime import datetime
+
+# Allow running this file directly from a source checkout:
+# python examples/fastapi_example.py
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from loglensx import setup_fastapi_loglensx
 
 # Configure logging
-import os
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 

@@ -2,11 +2,21 @@
 Flask example showing loglensx integration.
 """
 
-from flask import Flask, jsonify
 import logging
-from datetime import datetime
-from loglensx import setup_flask_loglensx
 import os
+import sys
+from datetime import datetime
+from pathlib import Path
+
+from flask import Flask, jsonify
+
+# Allow running this file directly from a source checkout:
+# python examples/flask_example.py
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from loglensx import setup_flask_loglensx
 
 # Create Flask app
 app = Flask(__name__)
