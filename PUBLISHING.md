@@ -144,5 +144,35 @@ After publishing, update documentation:
 - Keep CHANGELOG updated
 
 ---
+## Release
 
+Update the configuration
+```bash
+- pyproject.toml - version = "1.0.1"
+- setup.py - version="1.0.1"
+- __init__.py - version = "1.0.1"
+- CHANGELOG.md - Added release notes for v1.0.1 with bug fixes
+```
+Publish 
+```bash
+# 1. Commit the version bump
+git add .
+git commit -m "chore: bump version to 1.0.1"
+
+# 2. Create a git tag
+git tag -a v1.0.1 -m "Release version 1.0.1"
+
+# 3. Build the distribution
+python3 -m build
+
+# 4. Validate the package
+twine check dist/loglensx-1.0.1*
+
+# 5. Upload to PyPI
+twine upload dist/loglensx-1.0.1*
+
+# 6. Push to GitHub
+git push origin main
+git push origin v1.0.1
+```
 For more info: https://packaging.python.org/
