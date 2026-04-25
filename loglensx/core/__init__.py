@@ -2,5 +2,6 @@
 
 from .parser import LogParser
 from .analyzer import LogAnalyzer
+from .exporter import LogExporter
 
-__all__ = ["LogParser", "LogAnalyzer"]
+__all__ = ["LogParser", "LogAnalyzer", "LogExporter"]

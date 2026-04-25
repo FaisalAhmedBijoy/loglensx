@@ -10,6 +10,7 @@ __description__ = "Interactive log viewer with charts and visualizations for Fas
 
 from .core.parser import LogParser
 from .core.analyzer import LogAnalyzer
+from .core.exporter import LogExporter
 
 
 def _missing_optional_dependency(framework: str, extra: str):
@@ -42,6 +43,7 @@ except ModuleNotFoundError as exc:
 __all__ = [
     "LogParser",
     "LogAnalyzer",
+    "LogExporter",
     "setup_fastapi_loglensx",
     "setup_flask_loglensx",
 ]

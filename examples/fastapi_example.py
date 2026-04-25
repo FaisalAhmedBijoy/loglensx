@@ -26,11 +26,8 @@ os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, f"log_file_{datetime.now().strftime('%Y-%m-%d')}.log")
 logging.basicConfig(
     level=logging.DEBUG,
-    format='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
 )
 
 logger = logging.getLogger(__name__)
@@ -53,14 +50,11 @@ def read_root():
 def get_item(item_id: int):
     """Get an item by ID."""
     logger.info(f"Getting item with ID: {item_id}")
-    
+
     if item_id < 1:
         logger.warning(f"Invalid item ID requested: {item_id}")
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Invalid item ID"}
-        )
-    
+        return JSONResponse(status_code=400, content={"error": "Invalid item ID"})
+
     logger.debug(f"Item {item_id} found in database")
     return {"item_id": item_id, "name": f"Item {item_id}"}
 
@@ -69,14 +63,11 @@ def get_item(item_id: int):
 def create_item(name: str):
     """Create a new item."""
     logger.info(f"Creating new item: {name}")
-    
+
     if not name.strip():
         logger.error("Attempt to create item with empty name")
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Item name cannot be empty"}
-        )
-    
+        return JSONResponse(status_code=400, content={"error": "Item name cannot be empty"})
+
     logger.debug(f"Item created successfully: {name}")
     return {"id": 1, "name": name, "status": "created"}
 
@@ -91,12 +82,13 @@ def test_error():
 
 if __name__ == "__main__":
     import uvicorn
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("loglensx FastAPI Example")
-    print("="*60)
+    print("=" * 60)
     print("Main app:  http://localhost:8000/")
     print("loglensx:   http://localhost:8000/loglensx/")
     print("API Docs:  http://localhost:8000/docs")
-    print("="*60 + "\n")
-    
+    print("=" * 60 + "\n")
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

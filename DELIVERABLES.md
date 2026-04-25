@@ -7,7 +7,7 @@ This document summarizes the shipped project assets, runtime capabilities, and r
 | Field | Value |
 | --- | --- |
 | Package | `loglensx` |
-| Current package metadata | `1.0.2` |
+| Current package metadata | `1.0.3` |
 | Python support | Python 3.8+ |
 | License | MIT |
 | Package type | Python library with optional web integrations |
@@ -23,7 +23,8 @@ Before publishing a new release, verify that `pyproject.toml`, `setup.py`, and `
 | --- | --- |
 | `loglensx/core/parser.py` | Parses `.log` files with built-in and custom regex patterns |
 | `loglensx/core/analyzer.py` | Produces summaries, level counts, top loggers, error timelines, and filtered log slices |
-| `loglensx/cli.py` | Prints a quick terminal summary from the default `logs/` directory |
+| `loglensx/core/exporter.py` | Serializes parsed logs to JSON, CSV, and NDJSON |
+| `loglensx/cli.py` | Provides summary, log filtering, file metadata, error-pattern, and export workflows |
 
 ### Web Integrations
 
@@ -64,7 +65,9 @@ Before publishing a new release, verify that `pyproject.toml`, `setup.py`, and `
 - Reads `.log` files from a configurable directory.
 - Supports the default bracketed Python logging format.
 - Supports simple and fallback parsing for common log styles.
-- Accepts custom regex patterns with named groups.
+- Accepts custom regex patterns with named groups and applies them before built-in patterns.
+- Parses common JSON-line logs.
+- Folds multiline tracebacks and stack frames into the preceding parsed log entry.
 - Preserves source file and line number metadata.
 
 ### Analysis
@@ -74,15 +77,24 @@ Before publishing a new release, verify that `pyproject.toml`, `setup.py`, and `
 - Recent errors and warnings.
 - Top logger ranking.
 - Error frequency by hour.
-- Filters by level, logger, search term, and limit.
+- Recurring critical/error pattern grouping.
+- Per-file statistics with parsed entry counts and first/last timestamps.
+- Filters by level, logger, source file, search term, time window, and limit.
+
+### Export
+
+- JSON export for structured API and automation workflows.
+- CSV export with flattened structured-log extras.
+- NDJSON export for streaming-friendly downstream ingestion.
 
 ### Dashboard
 
 - Shared professional UI for Flask and FastAPI.
 - Metric cards for totals, errors, warnings, files, loggers, and stability.
 - Interactive Plotly charts.
-- Log explorer with server-side filters.
+- Log explorer with server-side search, severity, logger, file, time-window, and limit filters.
 - Client-side table search, level filtering, sorting, and expandable messages.
+- Browser export action for filtered CSV downloads.
 - Responsive layout for desktop and mobile use.
 
 ### APIs
@@ -96,6 +108,7 @@ When mounted at `/loglensx`, both Flask and FastAPI expose:
 | `GET /loglensx/api/logs` | Filtered logs as JSON |
 | `GET /loglensx/api/stats` | Summary, levels, top loggers, error frequency |
 | `GET /loglensx/api/search` | Search results |
+| `GET /loglensx/api/export` | Filtered exports as JSON, CSV, or NDJSON |
 | `GET /loglensx/api/files` | Log file metadata |
 
 ## Dependencies
@@ -136,10 +149,10 @@ Run tests:
 pytest
 ```
 
-If coverage dependencies are not installed:
+Run coverage when `pytest-cov` is installed:
 
 ```bash
-pytest -q -o addopts=""
+pytest --cov=loglensx --cov-report=html --cov-report=term-missing
 ```
 
 Smoke-test the Flask example:

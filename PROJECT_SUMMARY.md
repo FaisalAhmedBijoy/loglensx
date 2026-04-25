@@ -7,7 +7,7 @@ The project focuses on a small and practical workflow:
 1. Write normal Python logs to `.log` files.
 2. Parse those logs with `LogParser`.
 3. Analyze them with `LogAnalyzer`.
-4. Display them through a web dashboard, JSON API, generated Plotly figures, or terminal summary.
+4. Display or export them through a web dashboard, JSON API, generated Plotly figures, CSV/JSON/NDJSON payloads, or terminal workflows.
 
 ## Current State
 
@@ -17,6 +17,7 @@ The project focuses on a small and practical workflow:
 | Flask integration | Implemented |
 | FastAPI integration | Implemented |
 | Shared dashboard renderer | Implemented |
+| Export helpers | Implemented |
 | Plotly chart JSON generation | Implemented |
 | HTML table generation | Implemented |
 | Standalone examples | Implemented |
@@ -33,6 +34,7 @@ loglensx/
   core/
     parser.py
     analyzer.py
+    exporter.py
   integrations/
     _dashboard.py
     fastapi_integration.py
@@ -47,9 +49,11 @@ visualizations/
 
 ### Core Layer
 
-`LogParser` is responsible for file discovery and parsing. It reads `.log` files, extracts structured fields, and preserves source metadata.
+`LogParser` is responsible for file discovery and parsing. It reads `.log` files, extracts structured fields from regex and JSON-line logs, folds multiline tracebacks, and preserves source metadata.
 
-`LogAnalyzer` is responsible for aggregations and query behavior. It produces summaries, counts, filtered rows, recent errors, top loggers, and error frequency data.
+`LogAnalyzer` is responsible for aggregations and query behavior. It produces summaries, counts, filtered rows, recent errors, top loggers, error patterns, file statistics, and error frequency data.
+
+`LogExporter` serializes parsed entries to JSON, CSV, and NDJSON for automation and handoff workflows.
 
 ### Visualization Layer
 
@@ -66,6 +70,7 @@ The Flask and FastAPI integrations expose the same user-facing behavior:
 - JSON logs endpoint.
 - Statistics endpoint.
 - Search endpoint.
+- Export endpoint.
 - Log file metadata endpoint.
 
 Both integrations use `loglensx/integrations/_dashboard.py` for shared HTML, CSS, JavaScript, and route-page rendering. This keeps the dashboard experience consistent across frameworks.
@@ -76,8 +81,10 @@ Both integrations use `loglensx/integrations/_dashboard.py` for shared HTML, CSS
 
 - Reads `.log` files from a configurable directory.
 - Supports the bracketed logging format used by the examples.
+- Supports common JSON-line log payloads.
 - Falls back gracefully for simple messages.
-- Allows custom regex patterns.
+- Applies custom regex patterns before built-in patterns.
+- Folds traceback continuation lines into the preceding event.
 - Tracks file name and line number for each entry.
 
 ### Analysis
@@ -89,7 +96,9 @@ Both integrations use `loglensx/integrations/_dashboard.py` for shared HTML, CSS
 - Recent errors and warnings.
 - Top loggers.
 - Error frequency by hour.
-- Filtered log retrieval by level, logger, message search, and limit.
+- Recurring critical/error pattern grouping.
+- File statistics with parsed entry counts.
+- Filtered log retrieval by level, logger, source file, message search, time window, and limit.
 
 ### Dashboard
 
@@ -97,6 +106,7 @@ Both integrations use `loglensx/integrations/_dashboard.py` for shared HTML, CSS
 - Summary metric cards.
 - Plotly charts for level distribution, error timeline, and top loggers.
 - Log explorer with server-side filters.
+- CSV export action for filtered log slices.
 - Client-side table search, sort, and level filtering.
 - Expandable long messages.
 - Source file and line number display.
@@ -117,6 +127,7 @@ GET /loglensx/logs
 GET /loglensx/api/logs
 GET /loglensx/api/stats
 GET /loglensx/api/search
+GET /loglensx/api/export
 GET /loglensx/api/files
 ```
 
@@ -128,6 +139,8 @@ The standalone example demonstrates:
 - Printing summaries in the terminal.
 - Filtering logs.
 - Searching logs.
+- Exporting filtered logs.
+- Grouping recurring error patterns.
 - Writing Plotly JSON to `visualizations/`.
 - Viewing generated JSON with `visualizations/index.html`.
 
@@ -188,13 +201,8 @@ Recommended checks before publishing:
 ```bash
 python -m compileall loglensx examples tests
 pytest
+pytest --cov=loglensx --cov-report=html --cov-report=term-missing
 twine check dist/*
-```
-
-If `pytest-cov` is not installed:
-
-```bash
-pytest -q -o addopts=""
 ```
 
 ## Release Workflow

@@ -28,11 +28,8 @@ os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, f"log_file_{datetime.now().strftime('%Y-%m-%d')}.log")
 logging.basicConfig(
     level=logging.DEBUG,
-    format='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
+    format="[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+    handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
 )
 
 logger = logging.getLogger(__name__)
@@ -45,21 +42,18 @@ setup_flask_loglensx(app, log_dir="logs", prefix="/loglensx")
 def home():
     """Home route."""
     logger.info("Home page accessed")
-    return jsonify({
-        "message": "Welcome to loglensx Flask Example",
-        "logs_url": "/loglensx/"
-    })
+    return jsonify({"message": "Welcome to loglensx Flask Example", "logs_url": "/loglensx/"})
 
 
 @app.route("/api/items/<int:item_id>", methods=["GET"])
 def get_item(item_id):
     """Get an item by ID."""
     logger.info(f"Getting item with ID: {item_id}")
-    
+
     if item_id < 1:
         logger.warning(f"Invalid item ID requested: {item_id}")
         return jsonify({"error": "Invalid item ID"}), 400
-    
+
     logger.debug(f"Item {item_id} found in database")
     return jsonify({"item_id": item_id, "name": f"Item {item_id}"})
 
@@ -68,16 +62,16 @@ def get_item(item_id):
 def create_item():
     """Create a new item."""
     from flask import request
-    
+
     data = request.get_json() or {}
     name = data.get("name", "").strip()
-    
+
     logger.info(f"Creating new item: {name}")
-    
+
     if not name:
         logger.error("Attempt to create item with empty name")
         return jsonify({"error": "Item name cannot be empty"}), 400
-    
+
     logger.debug(f"Item created successfully: {name}")
     return jsonify({"id": 1, "name": name, "status": "created"})
 
@@ -107,11 +101,11 @@ def internal_error(error):
 
 
 if __name__ == "__main__":
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("loglensx Flask Example")
-    print("="*60)
+    print("=" * 60)
     print("Main app:  http://localhost:5000/")
     print("loglensx:   http://localhost:5000/loglensx/")
-    print("="*60 + "\n")
-    
+    print("=" * 60 + "\n")
+
     app.run(debug=False, port=5000)

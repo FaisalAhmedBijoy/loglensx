@@ -13,9 +13,11 @@ It is designed for teams that want a lightweight operational view of local or se
 
 - Framework integrations for FastAPI and Flask
 - Responsive dashboard with metric cards, Plotly charts, and searchable tables
-- Log explorer with filters for search text, level, logger, and row limits
-- JSON APIs for logs, statistics, search results, and log file metadata
+- Log explorer with filters for search text, level, logger, source file, time window, and row limits
+- JSON APIs for logs, statistics, search results, export, and log file metadata
 - Standalone parser and analyzer APIs for scripts, notebooks, and CLI workflows
+- JSON-line log parsing, custom regex parsing, and multiline traceback folding
+- JSON, CSV, and NDJSON export helpers
 - Plotly figure JSON generation for custom dashboards or static viewers
 - Support for common Python logging formats and custom regex parsing
 
@@ -172,6 +174,7 @@ When the dashboard is mounted at `/loglensx`, these routes are available:
 | `GET /loglensx/api/logs` | Filtered log entries as JSON |
 | `GET /loglensx/api/stats` | Summary statistics, level counts, top loggers, and error frequency |
 | `GET /loglensx/api/search` | Search log entries |
+| `GET /loglensx/api/export` | Export filtered log entries as JSON, CSV, or NDJSON |
 | `GET /loglensx/api/files` | Log file metadata |
 
 Common query parameters for `/api/logs` and `/logs`:
@@ -181,14 +184,19 @@ Common query parameters for `/api/logs` and `/logs`:
 | `search` | `database` | Match text in log messages |
 | `level` | `ERROR` | Filter by log level |
 | `logger` | `app.api` | Match logger names |
+| `file` | `app.log` | Match source log file names |
+| `since` | `2024-01-15T10:30:00` | Include entries at or after this timestamp |
+| `until` | `2024-01-15T11:00:00` | Include entries at or before this timestamp |
 | `limit` | `100` | Maximum rows to return |
 
 Examples:
 
 ```bash
 curl "http://127.0.0.1:5000/loglensx/api/logs?level=ERROR&limit=20"
+curl "http://127.0.0.1:5000/loglensx/api/logs?file=app.log&since=2024-01-15T10:30:00"
 curl "http://127.0.0.1:5000/loglensx/api/stats"
 curl "http://127.0.0.1:5000/loglensx/api/search?query=timeout"
+curl "http://127.0.0.1:5000/loglensx/api/export?format=csv&level=ERROR"
 ```
 
 ## Log Format
@@ -226,6 +234,14 @@ The pattern should use named groups where possible:
 - `level`
 - `logger`
 - `message`
+
+`loglensx` also understands common JSON-line logs:
+
+```text
+{"time":"2024-01-15T10:30:45","severity":"error","name":"app.api","event":"Request failed","request_id":"abc123"}
+```
+
+Continuation lines such as Python tracebacks are folded into the previous parsed log entry, so an exception stays attached to the event that created it.
 
 ## Visualization JSON
 
@@ -293,9 +309,29 @@ recent_errors = analyzer.get_recent_errors(limit=10)
 filtered = analyzer.filter_logs(
     level="ERROR",
     logger="database",
+    source_file="app.log",
     search_term="timeout",
+    since="2024-01-15T10:00:00",
+    until="2024-01-15T11:00:00",
     limit=100,
 )
+
+patterns = analyzer.get_error_patterns(limit=10)
+files = analyzer.get_file_statistics()
+```
+
+### `LogExporter`
+
+```python
+from loglensx import LogExporter
+
+logs = analyzer.filter_logs(level="ERROR", limit=100)
+
+json_payload = LogExporter.to_json(logs)
+csv_payload = LogExporter.to_csv(logs)
+ndjson_payload = LogExporter.to_ndjson(logs)
+
+LogExporter.export(logs, format="csv", output_path="errors.csv")
 ```
 
 ### `TableGenerator`
@@ -336,13 +372,18 @@ python examples/standalone_example.py
 
 ## CLI
 
-After installation, `loglensx` provides a small summary command that reads from the default `logs/` directory:
+After installation, `loglensx` provides terminal workflows for summaries, filtered log inspection, recurring error patterns, file metadata, and exports:
 
 ```bash
 loglensx
+loglensx summary --log-dir logs --format json
+loglensx logs --level ERROR --since 2024-01-15T10:00:00 --format csv --output errors.csv
+loglensx logs --search timeout --file app.log --limit 20
+loglensx patterns --limit 10
+loglensx files --format json
 ```
 
-It prints total logs, counts by level, unique loggers, log file count, and recent errors.
+Running `loglensx` without a subcommand keeps the original quick summary behavior.
 
 ## Project Structure
 
@@ -351,6 +392,7 @@ loglensx/
   core/
     parser.py
     analyzer.py
+    exporter.py
   integrations/
     fastapi_integration.py
     flask_integration.py
@@ -379,10 +421,10 @@ Run tests:
 pytest
 ```
 
-If `pytest-cov` is not installed in your environment, run tests without the configured coverage options:
+Run tests with coverage when `pytest-cov` is installed:
 
 ```bash
-pytest -q -o addopts=""
+pytest --cov=loglensx --cov-report=html --cov-report=term-missing
 ```
 
 ## Troubleshooting

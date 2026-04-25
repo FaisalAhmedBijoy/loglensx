@@ -5,9 +5,10 @@ FastAPI integration for the loglensx dashboard.
 from typing import Optional
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 from ..core.analyzer import LogAnalyzer
+from ..core.exporter import LogExporter
 from ..core.parser import LogParser
 from ._dashboard import (
     DASHBOARD_STYLES as ENHANCED_STYLES,
@@ -62,6 +63,9 @@ def setup_fastapi_loglensx(
         search: Optional[str] = Query(None),
         level: Optional[str] = Query(None),
         logger: Optional[str] = Query(None),
+        source_file: Optional[str] = Query(None, alias="file"),
+        since: Optional[str] = Query(None),
+        until: Optional[str] = Query(None),
         limit: int = Query(100, ge=1, le=1000),
     ):
         """Browsable log explorer page with advanced filtering."""
@@ -69,6 +73,9 @@ def setup_fastapi_loglensx(
             level=level,
             logger=logger,
             search_term=search,
+            source_file=source_file,
+            since=since,
+            until=until,
             limit=limit,
         )
 
@@ -79,6 +86,9 @@ def setup_fastapi_loglensx(
             search=search,
             level=level,
             logger=logger,
+            source_file=source_file,
+            since=since,
+            until=until,
             limit=limit,
         )
 
@@ -87,6 +97,9 @@ def setup_fastapi_loglensx(
         search: Optional[str] = Query(None),
         level: Optional[str] = Query(None),
         logger: Optional[str] = Query(None),
+        source_file: Optional[str] = Query(None, alias="file"),
+        since: Optional[str] = Query(None),
+        until: Optional[str] = Query(None),
         limit: int = Query(100, ge=1, le=1000),
     ):
         """Get logs with optional filters in JSON format."""
@@ -95,6 +108,9 @@ def setup_fastapi_loglensx(
                 level=level,
                 logger=logger,
                 search_term=search,
+                source_file=source_file,
+                since=since,
+                until=until,
                 limit=limit,
             )
             return {"status": "success", "count": len(logs), "logs": logs}
@@ -113,9 +129,48 @@ def setup_fastapi_loglensx(
                 "level_stats": analyzer.get_level_statistics(),
                 "top_loggers": analyzer.get_top_loggers(limit=15),
                 "error_frequency": analyzer.get_error_frequency(),
+                "error_patterns": analyzer.get_error_patterns(limit=10),
             }
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
+
+    @router.get("/api/export")
+    def export_logs(
+        format: str = Query("csv", regex="^(json|csv|ndjson)$"),
+        search: Optional[str] = Query(None),
+        level: Optional[str] = Query(None),
+        logger: Optional[str] = Query(None),
+        source_file: Optional[str] = Query(None, alias="file"),
+        since: Optional[str] = Query(None),
+        until: Optional[str] = Query(None),
+        limit: int = Query(1000, ge=1, le=1000),
+    ):
+        """Export filtered logs as JSON, CSV, or NDJSON."""
+        try:
+            logs = analyzer.filter_logs(
+                level=level,
+                logger=logger,
+                search_term=search,
+                source_file=source_file,
+                since=since,
+                until=until,
+                limit=limit,
+            )
+            payload = LogExporter.export(logs, format=format)
+            media_type = {
+                "json": "application/json",
+                "csv": "text/csv",
+                "ndjson": "application/x-ndjson",
+            }[format]
+            return Response(
+                content=payload,
+                media_type=media_type,
+                headers={"Content-Disposition": f"attachment; filename=loglensx-export.{format}"},
+            )
+        except ValueError as exc:
+            return JSONResponse(status_code=400, content={"status": "error", "detail": str(exc)})
+        except Exception as exc:
+            return JSONResponse(status_code=500, content={"status": "error", "detail": str(exc)})
 
     @router.get("/api/search", response_class=JSONResponse)
     def search_logs(query: str = Query(..., min_length=1)):
@@ -130,15 +185,7 @@ def setup_fastapi_loglensx(
     def get_log_files():
         """Get available log files metadata."""
         try:
-            file_info = [
-                {
-                    "name": file_path.name,
-                    "size": file_path.stat().st_size,
-                    "modified": file_path.stat().st_mtime,
-                }
-                for file_path in parser.get_log_files()
-            ]
-            return {"status": "success", "files": file_info}
+            return {"status": "success", "files": analyzer.get_file_statistics()}
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 

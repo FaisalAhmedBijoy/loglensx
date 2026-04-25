@@ -11,10 +11,12 @@ class TableGenerator:
     """Generate HTML tables for log data."""
 
     LEVEL_CLASSES = {
+        "CRITICAL": "llx-badge-critical",
         "ERROR": "llx-badge-error",
         "WARNING": "llx-badge-warning",
         "INFO": "llx-badge-info",
         "DEBUG": "llx-badge-debug",
+        "TRACE": "llx-badge-debug",
     }
 
     @classmethod
@@ -43,7 +45,7 @@ class TableGenerator:
     def _summary_cards(cls, entries: List[Dict[str, Any]]) -> str:
         """Render summary cards for the current log slice."""
         level_counts = Counter(str(entry.get("level", "INFO")).upper() for entry in entries)
-        ordered_levels = ["ERROR", "WARNING", "INFO", "DEBUG"]
+        ordered_levels = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]
 
         cards = [
             """
@@ -76,15 +78,13 @@ class TableGenerator:
         """Render a sortable table header button."""
         return (
             f'<button type="button" class="llx-sort-button" data-sort="{escape(key, quote=True)}">'
-            f"{escape(label)} <span class=\"llx-sort-indicator\" aria-hidden=\"true\"></span>"
+            f'{escape(label)} <span class="llx-sort-indicator" aria-hidden="true"></span>'
             "</button>"
         )
 
     @staticmethod
     def logs_to_html_table(
-        entries: List[Dict[str, Any]],
-        title: str = "Logs",
-        max_rows: Optional[int] = None
+        entries: List[Dict[str, Any]], title: str = "Logs", max_rows: Optional[int] = None
     ) -> str:
         """Convert log entries to HTML table."""
         if max_rows:
@@ -120,6 +120,7 @@ class TableGenerator:
                     <input type="search" data-table-search aria-label="Filter table rows" placeholder="Filter visible rows">
                     <select data-table-level aria-label="Filter by level">
                         <option value="">All levels</option>
+                        <option value="CRITICAL">CRITICAL</option>
                         <option value="ERROR">ERROR</option>
                         <option value="WARNING">WARNING</option>
                         <option value="INFO">INFO</option>

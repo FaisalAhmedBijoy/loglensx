@@ -1,5 +1,6 @@
 """Integration modules for web frameworks."""
 
+
 def _missing_optional_dependency(framework: str, extra: str):
     """Create a helpful placeholder for an unavailable optional integration."""
 

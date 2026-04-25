@@ -168,7 +168,7 @@ http://127.0.0.1:8000/loglensx/
 Use `LogParser` and `LogAnalyzer` without a web framework:
 
 ```python
-from loglensx import LogAnalyzer, LogParser
+from loglensx import LogAnalyzer, LogExporter, LogParser
 
 parser = LogParser(log_dir="logs")
 analyzer = LogAnalyzer(parser)
@@ -179,6 +179,9 @@ print("Errors:", summary["error_count"])
 
 for entry in analyzer.get_recent_errors(limit=5):
     print(entry["timestamp"], entry["message"])
+
+errors = analyzer.filter_logs(level="ERROR", since="2024-01-15T10:00:00")
+LogExporter.export(errors, format="csv", output_path="errors.csv")
 ```
 
 ## Dashboard Features
@@ -190,8 +193,9 @@ The mounted dashboard includes:
 - Error frequency timeline
 - Top loggers chart
 - Recent errors table with expandable messages
-- Log explorer with search, level, logger, and row-limit filters
-- JSON APIs for logs, statistics, search, and file metadata
+- Log explorer with search, level, logger, source file, time-window, and row-limit filters
+- JSON-line parsing and multiline traceback folding
+- JSON APIs for logs, statistics, search, export, and file metadata
 
 ## Useful Endpoints
 
@@ -200,9 +204,22 @@ These examples assume the dashboard is mounted at `/loglensx`.
 ```bash
 curl "http://127.0.0.1:5000/loglensx/api/logs?level=ERROR&limit=20"
 curl "http://127.0.0.1:5000/loglensx/api/logs?search=database"
+curl "http://127.0.0.1:5000/loglensx/api/logs?file=app.log&since=2024-01-15T10:00:00"
 curl "http://127.0.0.1:5000/loglensx/api/stats"
 curl "http://127.0.0.1:5000/loglensx/api/search?query=timeout"
+curl "http://127.0.0.1:5000/loglensx/api/export?format=csv&level=ERROR"
 curl "http://127.0.0.1:5000/loglensx/api/files"
+```
+
+## CLI Workflows
+
+```bash
+loglensx
+loglensx summary --format json
+loglensx logs --level ERROR --format csv --output errors.csv
+loglensx logs --search timeout --file app.log --limit 20
+loglensx patterns --limit 10
+loglensx files --format json
 ```
 
 ## Visualization JSON Viewer

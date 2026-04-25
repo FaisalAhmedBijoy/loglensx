@@ -1,12 +1,15 @@
 """Test suite for loglensx."""
 
+import json
 import pytest
 import os
 import tempfile
 from pathlib import Path
 from datetime import datetime
+from loglensx.cli import main as cli_main
 from loglensx.core.parser import LogParser
 from loglensx.core.analyzer import LogAnalyzer
+from loglensx.core.exporter import LogExporter
 from loglensx.integrations._dashboard import default_links, render_dashboard_page, render_logs_page
 from loglensx.visualizers.tables import TableGenerator
 
@@ -71,6 +74,54 @@ class TestLogParser:
         assert len(results) > 0
         assert "Connection timeout" in results[0]["message"]
 
+    def test_custom_pattern_is_used_before_builtin_patterns(self):
+        """Custom regex patterns should parse non-default log formats."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "custom.log"
+            log_file.write_text("2024-01-15T10:31:00|ERROR|billing.worker|Payment failed\n")
+
+            pattern = r"(?P<timestamp>.*?)\|(?P<level>\w+)\|" r"(?P<logger>.*?)\|(?P<message>.*)"
+            parser = LogParser(log_dir=tmpdir, pattern=pattern)
+            entries = parser.parse_log_file(log_file)
+
+            assert entries[0]["timestamp"] == "2024-01-15T10:31:00"
+            assert entries[0]["level"] == "ERROR"
+            assert entries[0]["logger"] == "billing.worker"
+            assert entries[0]["format"] == "custom"
+
+    def test_json_logs_and_multiline_tracebacks_are_parsed(self):
+        """JSON log lines should keep extras and absorb traceback continuations."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "json.log"
+            log_file.write_text(
+                '{"time":"2024-01-15T10:31:00","severity":"error",'
+                '"name":"app.api","event":"Request failed","request_id":"abc123"}\n'
+                "Traceback (most recent call last):\n"
+                '  File "app.py", line 10, in handler\n'
+                "ValueError: boom\n"
+            )
+
+            parser = LogParser(log_dir=tmpdir)
+            entries = parser.parse_log_file(log_file)
+
+            assert len(entries) == 1
+            assert entries[0]["level"] == "ERROR"
+            assert entries[0]["logger"] == "app.api"
+            assert "Traceback" in entries[0]["message"]
+            assert entries[0]["extra"]["request_id"] == "abc123"
+
+    def test_unstructured_lines_do_not_merge_unless_they_look_like_continuations(self):
+        """Plain unmatched lines should remain separate fallback entries."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "plain.log"
+            log_file.write_text("server started\nrequest completed\n")
+
+            entries = LogParser(log_dir=tmpdir).parse_log_file(log_file)
+
+            assert len(entries) == 2
+            assert entries[0]["message"] == "server started"
+            assert entries[1]["message"] == "request completed"
+
 
 class TestLogAnalyzer:
     """Test LogAnalyzer class."""
@@ -111,14 +162,71 @@ class TestLogAnalyzer:
         """Test filtering logs."""
         parser = LogParser(log_dir=temp_log_dir)
         analyzer = LogAnalyzer(parser)
-        
+
         # Filter by level
         errors = analyzer.filter_logs(level="ERROR")
         assert all(e["level"] == "ERROR" for e in errors)
-        
+
         # Filter by search term
         results = analyzer.filter_logs(search_term="cache")
         assert len(results) > 0
+
+    def test_filter_logs_by_time_window_and_file(self, temp_log_dir):
+        """Analyzer filters should support time windows and source files."""
+        parser = LogParser(log_dir=temp_log_dir)
+        analyzer = LogAnalyzer(parser)
+        file_name = Path(parser.get_log_files()[0]).name
+
+        results = analyzer.filter_logs(
+            since="2024-01-15 10:30:46",
+            until="2024-01-15 10:30:47",
+            source_file=file_name,
+            limit=10,
+        )
+
+        assert {entry["level"] for entry in results} == {"WARNING", "INFO"}
+
+    def test_get_error_patterns_groups_recurring_messages(self):
+        """Repeated dynamic error messages should collapse into patterns."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_file = Path(tmpdir) / "errors.log"
+            log_file.write_text(
+                "[2024-01-15 10:30:45] [ERROR] [app.db] User 123 lookup failed\n"
+                "[2024-01-15 10:30:46] [ERROR] [app.db] User 456 lookup failed\n"
+            )
+
+            analyzer = LogAnalyzer(LogParser(log_dir=tmpdir))
+            patterns = analyzer.get_error_patterns()
+
+            assert patterns[0]["count"] == 2
+            assert "user {number} lookup failed" == patterns[0]["pattern"]
+
+
+class TestLogExporter:
+    """Test export serialization helpers."""
+
+    def test_export_json_csv_and_ndjson(self):
+        """Exporter should serialize stable fields and flattened extras."""
+        entries = [
+            {
+                "timestamp": "2024-01-15 10:30:45",
+                "level": "ERROR",
+                "logger": "app.database",
+                "message": "Connection timeout",
+                "file": "app.log",
+                "line_num": 42,
+                "raw": "raw line",
+                "extra": {"request_id": "abc123"},
+            }
+        ]
+
+        json_payload = LogExporter.to_json(entries)
+        csv_payload = LogExporter.to_csv(entries)
+        ndjson_payload = LogExporter.to_ndjson(entries)
+
+        assert json.loads(json_payload)[0]["message"] == "Connection timeout"
+        assert "extra.request_id" in csv_payload
+        assert json.loads(ndjson_payload)["logger"] == "app.database"
 
 
 class TestTableGenerator:
@@ -201,7 +309,33 @@ class TestDashboardRendering:
         assert "Log Explorer" in html
         assert "data-table-search" in html
         assert 'data-sort="timestamp"' in html
+        assert 'name="since"' in html
+        assert 'name="file"' in html
+        assert "Export CSV" in html
         assert "JSON Results" in html
+
+
+class TestCLI:
+    """Test command-line workflows."""
+
+    def test_cli_logs_json_output(self, temp_log_dir, capsys):
+        """The logs command should emit filtered JSON."""
+        exit_code = cli_main(
+            [
+                "logs",
+                "--log-dir",
+                temp_log_dir,
+                "--level",
+                "ERROR",
+                "--format",
+                "json",
+            ]
+        )
+        captured = capsys.readouterr()
+
+        assert exit_code == 0
+        payload = json.loads(captured.out)
+        assert payload[0]["level"] == "ERROR"
 
 
 if __name__ == "__main__":

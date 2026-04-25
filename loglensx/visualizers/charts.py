@@ -8,6 +8,7 @@ from typing import Any, Dict, List
 # Chart constants
 CHART_HEIGHT = 420
 COLOR_ERROR = "#dc2626"
+COLOR_CRITICAL = "#7f1d1d"
 COLOR_WARNING = "#d97706"
 COLOR_INFO = "#0284c7"
 COLOR_DEBUG = "#475569"
@@ -18,10 +19,12 @@ GRID_COLOR = "#e5edf7"
 TEXT_COLOR = "#334155"
 
 LEVEL_COLORS = {
+    "CRITICAL": COLOR_CRITICAL,
     "ERROR": COLOR_ERROR,
     "WARNING": COLOR_WARNING,
     "INFO": COLOR_INFO,
     "DEBUG": COLOR_DEBUG,
+    "TRACE": COLOR_DEBUG,
 }
 
 
@@ -69,7 +72,7 @@ class ChartGenerator:
                         "borderWidth": 2,
                         "hoverOffset": 8,
                     }
-                ]
+                ],
             },
             "options": {
                 "responsive": True,
@@ -79,7 +82,7 @@ class ChartGenerator:
                     "legend": {"position": "bottom"},
                     "tooltip": {"enabled": True},
                 },
-            }
+            },
         }
 
     @staticmethod
@@ -103,19 +106,17 @@ class ChartGenerator:
                         "pointRadius": 4,
                         "pointHoverRadius": 7,
                     }
-                ]
+                ],
             },
             "options": {
                 "responsive": True,
                 "maintainAspectRatio": False,
-                "plugins": {
-                    "legend": {"display": True}
-                },
+                "plugins": {"legend": {"display": True}},
                 "scales": {
                     "x": {"grid": {"color": GRID_COLOR}},
                     "y": {"beginAtZero": True, "grid": {"color": GRID_COLOR}},
                 },
-            }
+            },
         }
 
     @staticmethod
@@ -135,20 +136,18 @@ class ChartGenerator:
                         "backgroundColor": COLOR_DEFAULT,
                         "borderRadius": 6,
                     }
-                ]
+                ],
             },
             "options": {
                 "responsive": True,
                 "maintainAspectRatio": False,
                 "indexAxis": "y",
-                "plugins": {
-                    "legend": {"display": False}
-                },
+                "plugins": {"legend": {"display": False}},
                 "scales": {
                     "x": {"beginAtZero": True, "grid": {"color": GRID_COLOR}},
                     "y": {"grid": {"display": False}},
                 },
-            }
+            },
         }
 
     @staticmethod

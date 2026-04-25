@@ -6,10 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- JSON-line log parsing with preserved structured extras.
+- Multiline traceback folding so stack frames stay attached to the originating log entry.
+- Time-window and source-file filters across analyzer APIs, web explorer pages, and `/api/logs`.
+- `LogExporter` for JSON, CSV, and NDJSON serialization.
+- `/api/export` endpoints for Flask and FastAPI integrations.
+- Expanded CLI workflows for `summary`, `logs`, `files`, and recurring error `patterns`.
+- Error pattern grouping and enriched per-file statistics.
+
 ### Changed
 
 - Refreshed non-README project documentation for the current dashboard, visualization viewer, and publishing workflow.
 - Reworked release checklists to emphasize version consistency across `pyproject.toml`, `setup.py`, and `loglensx/__init__.py`.
+- Dashboard and explorer forms now include source file and time-window filters plus CSV export actions.
+- Default `pytest` configuration no longer requires the optional coverage plugin; coverage is now an explicit command.
+
+### Fixed
+
+- Custom regex patterns passed to `LogParser` are now applied before built-in patterns.
 
 ## [1.0.3] - 2026-04-24
 

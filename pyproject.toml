@@ -81,4 +81,4 @@ disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=loglensx --cov-report=html --cov-report=term-missing"
+addopts = "-q"

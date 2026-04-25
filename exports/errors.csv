@@ -1,0 +1,11 @@
+timestamp,level,logger,message,file,line_num,raw,format
+"2026-04-25 20:53:28,617",ERROR,myapp.database,Connection timeout after 30 seconds,log_file_2026-04-25.log,17,"[2026-04-25 20:53:28,617] [ERROR] [myapp.database] Connection timeout after 30 seconds",standard
+"2026-04-25 20:53:28,617",ERROR,myapp.api,Failed to authenticate user: invalid token,log_file_2026-04-25.log,15,"[2026-04-25 20:53:28,617] [ERROR] [myapp.api] Failed to authenticate user: invalid token",standard
+"2026-04-24 22:59:53,157",ERROR,myapp.database,Connection timeout after 30 seconds,log_file_2026-04-24.log,83,"[2026-04-24 22:59:53,157] [ERROR] [myapp.database] Connection timeout after 30 seconds",standard
+"2026-04-24 22:59:53,157",ERROR,myapp.api,Failed to authenticate user: invalid token,log_file_2026-04-24.log,81,"[2026-04-24 22:59:53,157] [ERROR] [myapp.api] Failed to authenticate user: invalid token",standard
+"2026-04-24 12:33:38,475",ERROR,myapp.database,Connection timeout after 30 seconds,log_file_2026-04-24.log,39,"[2026-04-24 12:33:38,475] [ERROR] [myapp.database] Connection timeout after 30 seconds",standard
+"2026-04-24 12:33:38,475",ERROR,myapp.api,Failed to authenticate user: invalid token,log_file_2026-04-24.log,37,"[2026-04-24 12:33:38,475] [ERROR] [myapp.api] Failed to authenticate user: invalid token",standard
+2024-01-15 10:30:48,ERROR,my_app.database,Failed to execute query: SELECT * FROM users WHERE id = 123,log_file_2026-04-02.log,4,[2024-01-15 10:30:48] [ERROR] [my_app.database] Failed to execute query: SELECT * FROM users WHERE id = 123,standard
+2024-01-15 10:30:48,ERROR,my_app.database,Failed to execute query: SELECT * FROM users WHERE id = 123,log_file_2026-04-01.log,4,[2024-01-15 10:30:48] [ERROR] [my_app.database] Failed to execute query: SELECT * FROM users WHERE id = 123,standard
+2024-01-15 10:30:45,ERROR,my_app.database,Connection timeout,log_file_2026-04-02.log,1,[2024-01-15 10:30:45] [ERROR] [my_app.database] Connection timeout,standard
+2024-01-15 10:30:45,ERROR,my_app.database,Connection timeout,log_file_2026-04-01.log,1,[2024-01-15 10:30:45] [ERROR] [my_app.database] Connection timeout,standard

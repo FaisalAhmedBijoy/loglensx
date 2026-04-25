@@ -25,6 +25,8 @@ DASHBOARD_STYLES = """
     --llx-soft: #eef4ff;
     --llx-primary: #2563eb;
     --llx-primary-dark: #1d4ed8;
+    --llx-critical: #7f1d1d;
+    --llx-critical-soft: #fecaca;
     --llx-danger: #dc2626;
     --llx-danger-soft: #fee2e2;
     --llx-warning: #d97706;
@@ -253,10 +255,11 @@ h3 { letter-spacing: 0; }
 }
 .filters {
     display: grid;
-    grid-template-columns: minmax(220px, 1.5fr) minmax(160px, 0.8fr) minmax(180px, 1fr) minmax(120px, 0.55fr) auto;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 14px;
     align-items: end;
 }
+.field-wide { grid-column: span 2; }
 .field label,
 .llx-field-label {
     display: block;
@@ -304,6 +307,7 @@ h3 { letter-spacing: 0; }
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
 }
 .metric-card.metric-danger { border-top: 4px solid var(--llx-danger); }
+.metric-card.metric-critical { border-top: 4px solid var(--llx-critical); }
 .metric-card.metric-warning { border-top: 4px solid var(--llx-warning); }
 .metric-card.metric-info { border-top: 4px solid var(--llx-info); }
 .metric-card.metric-success { border-top: 4px solid var(--llx-success); }
@@ -514,11 +518,13 @@ h3 { letter-spacing: 0; }
     font-weight: 850;
     letter-spacing: 0.05em;
 }
+.llx-badge-critical { background: var(--llx-critical-soft); color: #7f1d1d; }
 .llx-badge-error { background: var(--llx-danger-soft); color: #991b1b; }
 .llx-badge-warning { background: var(--llx-warning-soft); color: #92400e; }
 .llx-badge-info { background: var(--llx-info-soft); color: #075985; }
 .llx-badge-debug { background: var(--llx-debug-soft); color: #334155; }
 .llx-badge-default { background: #ede9fe; color: #5b21b6; }
+.llx-log-table tr[data-level="CRITICAL"] { box-shadow: inset 3px 0 0 var(--llx-critical); }
 .llx-log-table tr[data-level="ERROR"] { box-shadow: inset 3px 0 0 var(--llx-danger); }
 .llx-log-table tr[data-level="WARNING"] { box-shadow: inset 3px 0 0 var(--llx-warning); }
 .llx-log-table tr[data-level="INFO"] { box-shadow: inset 3px 0 0 var(--llx-info); }
@@ -545,6 +551,7 @@ code {
     .sidebar-footer { display: none; }
     .metrics-grid { grid-template-columns: repeat(3, minmax(140px, 1fr)); }
     .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .field-wide { grid-column: span 1; }
     .form-actions { grid-column: 1 / -1; }
 }
 
@@ -578,6 +585,7 @@ DASHBOARD_SCRIPT = """
 (function () {
     const data = window.LOGLENSX_DATA || {};
     const palette = {
+        CRITICAL: "#7f1d1d",
         ERROR: "#dc2626",
         WARNING: "#d97706",
         INFO: "#0284c7",
@@ -805,7 +813,7 @@ DASHBOARD_SCRIPT = """
                     activeSort = { key: key, direction: "asc" };
                 }
 
-                const levelOrder = { ERROR: 1, WARNING: 2, INFO: 3, DEBUG: 4 };
+                const levelOrder = { CRITICAL: 0, ERROR: 1, WARNING: 2, INFO: 3, DEBUG: 4, TRACE: 5 };
                 const sorted = rows.slice().sort(function (a, b) {
                     let left = a.dataset[key] || "";
                     let right = b.dataset[key] || "";
@@ -889,6 +897,14 @@ SVG_REFRESH = """
 </svg>
 """
 
+SVG_DOWNLOAD = """
+<svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>
+"""
+
 
 def default_links(prefix: str) -> Dict[str, str]:
     """Build stable dashboard links from a route prefix."""
@@ -899,6 +915,7 @@ def default_links(prefix: str) -> Dict[str, str]:
         "logs_base": f"{base}/logs",
         "api_stats": f"{base}/api/stats",
         "api_logs": f"{base}/api/logs?limit=100",
+        "api_export": f"{base}/api/export?format=csv&limit=1000",
         "api_files": f"{base}/api/files",
     }
 
@@ -937,18 +954,28 @@ def _selected(value: Optional[str], expected: str) -> str:
 
 def _stat_cards(summary: Mapping[str, Any], level_stats: Mapping[str, int]) -> str:
     total = _as_int(summary.get("total_logs"))
+    critical = _as_int(summary.get("critical_count", level_stats.get("CRITICAL", 0)))
     errors = _as_int(summary.get("error_count", level_stats.get("ERROR", 0)))
     warnings = _as_int(summary.get("warning_count", level_stats.get("WARNING", 0)))
     unique_loggers = _as_int(summary.get("unique_loggers"))
     files = _as_int(summary.get("files"))
-    stability = max(0, min(100, round(100 - ((_as_int(errors) * 4 + _as_int(warnings) * 1.5) / total * 100)))) if total else 100
+    stability = (
+        max(
+            0,
+            min(
+                100, round(100 - (((critical * 6) + (errors * 4) + (warnings * 1.5)) / total * 100))
+            ),
+        )
+        if total
+        else 100
+    )
 
     cards = [
         ("Total Logs", total, f"{files} files indexed", "info", ""),
+        ("Critical", critical, f"{_rate(critical, total)} of traffic", "critical", ""),
         ("Errors", errors, f"{_rate(errors, total)} of traffic", "danger", ""),
         ("Warnings", warnings, f"{_rate(warnings, total)} of traffic", "warning", ""),
         ("Loggers", unique_loggers, "Unique sources", "success", ""),
-        ("Files", files, "Active log files", "info", ""),
         ("Stability", stability, "Composite score", "success", "%"),
     ]
 
@@ -959,7 +986,7 @@ def _stat_cards(summary: Mapping[str, Any], level_stats: Mapping[str, int]) -> s
             '<div class="metric-label">{label}</div>'
             '<div class="metric-value" data-count="{value}" data-suffix="{suffix}">{display}</div>'
             '<div class="metric-note">{note}</div>'
-            '</article>'.format(
+            "</article>".format(
                 tone=escape(tone),
                 label=escape(label),
                 value=escape(str(value)),
@@ -984,6 +1011,7 @@ def _dashboard_data(
             "logs": links.get("logs", ""),
             "logsBase": links.get("logs_base", links.get("logs", "")),
             "apiStats": links.get("api_stats", ""),
+            "apiExport": links.get("api_export", ""),
         },
         "summary": dict(summary or {}),
         "levelStats": dict(level_stats or {}),
@@ -1053,13 +1081,14 @@ def render_dashboard_page(
                     <p>Monitor severity, error timing, and noisy loggers from a single workspace.</p>
                 </div>
                 <div class="actions">
+                    <a class="button button-secondary" href="${api_export_url}">${download_icon}<span>Export CSV</span></a>
                     <a class="button button-secondary" href="${api_logs_url}">JSON Logs</a>
                     <a class="button" href="${logs_url}">Open Explorer</a>
                 </div>
             </header>
 
             <form class="command-panel filters" action="${logs_base_url}" method="get">
-                <div class="field">
+                <div class="field field-wide">
                     <label for="dashboard-search">Search</label>
                     <input id="dashboard-search" name="search" type="search" placeholder="message text or route">
                 </div>
@@ -1067,6 +1096,7 @@ def render_dashboard_page(
                     <label for="dashboard-level">Level</label>
                     <select id="dashboard-level" name="level">
                         <option value="">All levels</option>
+                        <option value="CRITICAL">CRITICAL</option>
                         <option value="ERROR">ERROR</option>
                         <option value="WARNING">WARNING</option>
                         <option value="INFO">INFO</option>
@@ -1076,6 +1106,18 @@ def render_dashboard_page(
                 <div class="field">
                     <label for="dashboard-logger">Logger</label>
                     <input id="dashboard-logger" name="logger" placeholder="app.api or worker">
+                </div>
+                <div class="field">
+                    <label for="dashboard-file">File</label>
+                    <input id="dashboard-file" name="file" placeholder="app.log">
+                </div>
+                <div class="field">
+                    <label for="dashboard-since">Since</label>
+                    <input id="dashboard-since" name="since" type="datetime-local">
+                </div>
+                <div class="field">
+                    <label for="dashboard-until">Until</label>
+                    <input id="dashboard-until" name="until" type="datetime-local">
                 </div>
                 <div class="field">
                     <label for="dashboard-limit">Rows</label>
@@ -1141,9 +1183,11 @@ def render_dashboard_page(
         logs_base_url=escape(links.get("logs_base", links.get("logs", "#")), quote=True),
         api_stats_url=escape(links.get("api_stats", "#"), quote=True),
         api_logs_url=escape(links.get("api_logs", "#"), quote=True),
+        api_export_url=escape(links.get("api_export", "#"), quote=True),
         log_dir=escape(log_dir),
         search_icon=SVG_SEARCH,
         refresh_icon=SVG_REFRESH,
+        download_icon=SVG_DOWNLOAD,
         stats_html=stats_html,
         errors_table=errors_table,
         dashboard_data=dashboard_data,
@@ -1159,6 +1203,9 @@ def render_logs_page(
     search: Optional[str] = None,
     level: Optional[str] = None,
     logger: Optional[str] = None,
+    source_file: Optional[str] = None,
+    since: Optional[str] = None,
+    until: Optional[str] = None,
     limit: int = 100,
 ) -> str:
     """Render the shared log explorer page."""
@@ -1169,6 +1216,7 @@ def render_logs_page(
             "links": {
                 "logs": links.get("logs", ""),
                 "logsBase": links.get("logs_base", links.get("logs", "")),
+                "apiExport": links.get("api_export", ""),
             },
             "levelStats": {},
             "topLoggers": [],
@@ -1215,13 +1263,14 @@ def render_logs_page(
                     <p>${result_count} entries from <code>${log_dir}</code></p>
                 </div>
                 <div class="actions">
+                    <a class="button button-secondary" href="${api_export_filtered_url}">${download_icon}<span>Export CSV</span></a>
                     <a class="button button-secondary" href="${api_logs_filtered_url}">JSON Results</a>
                     <a class="button" href="${dashboard_url}">Dashboard</a>
                 </div>
             </header>
 
             <form class="command-panel filters" action="${logs_base_url}" method="get">
-                <div class="field">
+                <div class="field field-wide">
                     <label for="search">Search</label>
                     <input id="search" name="search" type="search" value="${search}" placeholder="message text or route">
                 </div>
@@ -1229,6 +1278,7 @@ def render_logs_page(
                     <label for="level">Level</label>
                     <select id="level" name="level">
                         <option value=""${selected_all}>All levels</option>
+                        <option value="CRITICAL"${selected_critical}>CRITICAL</option>
                         <option value="ERROR"${selected_error}>ERROR</option>
                         <option value="WARNING"${selected_warning}>WARNING</option>
                         <option value="INFO"${selected_info}>INFO</option>
@@ -1238,6 +1288,18 @@ def render_logs_page(
                 <div class="field">
                     <label for="logger">Logger</label>
                     <input id="logger" name="logger" value="${logger}" placeholder="app.api or worker">
+                </div>
+                <div class="field">
+                    <label for="file">File</label>
+                    <input id="file" name="file" value="${source_file}" placeholder="app.log">
+                </div>
+                <div class="field">
+                    <label for="since">Since</label>
+                    <input id="since" name="since" type="datetime-local" value="${since}">
+                </div>
+                <div class="field">
+                    <label for="until">Until</label>
+                    <input id="until" name="until" type="datetime-local" value="${until}">
                 </div>
                 <div class="field">
                     <label for="limit">Rows</label>
@@ -1263,6 +1325,21 @@ def render_logs_page(
         search=search,
         level=level,
         logger=logger,
+        file=source_file,
+        since=since,
+        until=until,
+        limit=limit,
+    )
+    api_export_base = links.get("api_export", links.get("api_logs", "#")).split("?", 1)[0]
+    filtered_export_url = _query_url(
+        api_export_base,
+        format="csv",
+        search=search,
+        level=level,
+        logger=logger,
+        file=source_file,
+        since=since,
+        until=until,
         limit=limit,
     )
 
@@ -1273,17 +1350,23 @@ def render_logs_page(
         logs_base_url=escape(links.get("logs_base", links.get("logs", "#")), quote=True),
         api_logs_url=escape(links.get("api_logs", "#"), quote=True),
         api_logs_filtered_url=escape(filtered_api_url, quote=True),
+        api_export_filtered_url=escape(filtered_export_url, quote=True),
         log_dir=escape(log_dir),
         result_count=escape(str(len(logs))),
         search=escape(search or "", quote=True),
         logger=escape(logger or "", quote=True),
+        source_file=escape(source_file or "", quote=True),
+        since=escape(since or "", quote=True),
+        until=escape(until or "", quote=True),
         limit=escape(str(limit), quote=True),
         selected_all=" selected" if not level_value else "",
+        selected_critical=_selected(level_value, "CRITICAL"),
         selected_error=_selected(level_value, "ERROR"),
         selected_warning=_selected(level_value, "WARNING"),
         selected_info=_selected(level_value, "INFO"),
         selected_debug=_selected(level_value, "DEBUG"),
         search_icon=SVG_SEARCH,
+        download_icon=SVG_DOWNLOAD,
         logs_table=logs_table,
         dashboard_data=dashboard_data,
         script=DASHBOARD_SCRIPT,

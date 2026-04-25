@@ -2,9 +2,10 @@
 Flask integration for the loglensx dashboard.
 """
 
-from flask import Blueprint, Flask, jsonify, request, url_for
+from flask import Blueprint, Flask, Response, jsonify, request, url_for
 
 from ..core.analyzer import LogAnalyzer
+from ..core.exporter import LogExporter
 from ..core.parser import LogParser
 from ._dashboard import (
     DASHBOARD_STYLES as ENHANCED_STYLES,
@@ -37,6 +38,7 @@ def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/logl
             "logs_base": url_for("loglensx.logs_page"),
             "api_stats": url_for("loglensx.api_stats"),
             "api_logs": url_for("loglensx.get_logs", limit=100),
+            "api_export": url_for("loglensx.api_export", format="csv", limit=1000),
             "api_files": url_for("loglensx.api_files"),
         }
 
@@ -44,6 +46,30 @@ def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/logl
         """Read and clamp the requested row limit."""
         limit = request.args.get("limit", default, type=int) or default
         return max(1, min(limit, 1000))
+
+    def request_filters():
+        """Read shared log filters from query parameters."""
+        return {
+            "search": request.args.get("search"),
+            "level": request.args.get("level"),
+            "logger_name": request.args.get("logger"),
+            "source_file": request.args.get("file"),
+            "since": request.args.get("since"),
+            "until": request.args.get("until"),
+        }
+
+    def filtered_logs(limit: int):
+        """Apply request filters through the analyzer."""
+        filters = request_filters()
+        return analyzer.filter_logs(
+            level=filters["level"] or None,
+            logger=filters["logger_name"] or None,
+            search_term=filters["search"] or None,
+            source_file=filters["source_file"] or None,
+            since=filters["since"] or None,
+            until=filters["until"] or None,
+            limit=limit,
+        )
 
     @blueprint.route("/")
     def dashboard():
@@ -67,25 +93,20 @@ def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/logl
     @blueprint.route("/logs")
     def logs_page():
         """Browsable log explorer page."""
-        search = request.args.get("search")
-        level = request.args.get("level")
-        logger_name = request.args.get("logger")
+        filters = request_filters()
         limit = request_limit()
-
-        logs = analyzer.filter_logs(
-            level=level or None,
-            logger=logger_name or None,
-            search_term=search or None,
-            limit=limit,
-        )
+        logs = filtered_logs(limit)
 
         return render_logs_page(
             links=route_links(),
             logs=logs,
             log_dir=log_dir,
-            search=search,
-            level=level,
-            logger=logger_name,
+            search=filters["search"],
+            level=filters["level"],
+            logger=filters["logger_name"],
+            source_file=filters["source_file"],
+            since=filters["since"],
+            until=filters["until"],
             limit=limit,
         )
 
@@ -93,17 +114,8 @@ def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/logl
     def get_logs():
         """Get logs as JSON with optional filters."""
         try:
-            search = request.args.get("search")
-            level = request.args.get("level")
-            logger_name = request.args.get("logger")
             limit = request_limit()
-
-            logs = analyzer.filter_logs(
-                level=level or None,
-                logger=logger_name or None,
-                search_term=search or None,
-                limit=limit,
-            )
+            logs = filtered_logs(limit)
             return jsonify({"status": "success", "count": len(logs), "logs": logs})
         except Exception as exc:
             return jsonify({"status": "error", "message": str(exc)}), 500
@@ -119,8 +131,32 @@ def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/logl
                     "level_stats": analyzer.get_level_statistics(),
                     "top_loggers": analyzer.get_top_loggers(limit=15),
                     "error_frequency": analyzer.get_error_frequency(),
+                    "error_patterns": analyzer.get_error_patterns(limit=10),
                 }
             )
+        except Exception as exc:
+            return jsonify({"status": "error", "message": str(exc)}), 500
+
+    @blueprint.route("/api/export")
+    def api_export():
+        """Export filtered logs as JSON, CSV, or NDJSON."""
+        try:
+            export_format = request.args.get("format", "csv")
+            limit = request_limit(default=1000)
+            logs = filtered_logs(limit)
+            payload = LogExporter.export(logs, format=export_format)
+            mimetype = {
+                "json": "application/json",
+                "csv": "text/csv",
+                "ndjson": "application/x-ndjson",
+            }[export_format.lower()]
+            response = Response(payload, mimetype=mimetype)
+            response.headers["Content-Disposition"] = (
+                f"attachment; filename=loglensx-export.{export_format.lower()}"
+            )
+            return response
+        except ValueError as exc:
+            return jsonify({"status": "error", "message": str(exc)}), 400
         except Exception as exc:
             return jsonify({"status": "error", "message": str(exc)}), 500
 
@@ -141,15 +177,7 @@ def setup_flask_loglensx(app: Flask, log_dir: str = "logs", prefix: str = "/logl
     def api_files():
         """Get available log files metadata."""
         try:
-            file_info = [
-                {
-                    "name": file_path.name,
-                    "size": file_path.stat().st_size,
-                    "modified": file_path.stat().st_mtime,
-                }
-                for file_path in parser.get_log_files()
-            ]
-            return jsonify({"status": "success", "files": file_info})
+            return jsonify({"status": "success", "files": analyzer.get_file_statistics()})
         except Exception as exc:
             return jsonify({"status": "error", "message": str(exc)}), 500
 
